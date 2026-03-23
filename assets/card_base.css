@@ -1,0 +1,188 @@
+/*
+  Card Base — ajuste sem alterar a altura estrutural da seção.
+  Mantém a estrutura original: section-header + section-card.
+  Todo o visual fica escopado em .section--base.
+*/
+
+.section--base {
+  --base-topline-offset-y: calc(-100px * var(--dash-sy));
+  --base-topline-offset-x: calc(-22px * var(--dash-sx));
+
+  --base-title-size: calc(45px * var(--dash-scale));
+  --base-title-offset-x: calc(6px * var(--dash-sx));
+  --base-title-offset-y: calc(14px * var(--dash-sy));
+
+  --base-active-value-size: calc(49px * var(--dash-scale));
+  --base-active-label-size: calc(17px * var(--dash-scale));
+
+  --base-metric-card-height: calc(246px * var(--dash-sy));
+  --base-metric-card-gap: calc(39px * var(--dash-sx)); /* gap estrutural fixo */
+
+  /* 
+    Ajuste visual do espaçamento entre os quadrados:
+    valor positivo = aproxima os quadrados
+    valor negativo = afasta os quadrados
+    não altera largura, só posição
+  */
+  --base-metric-visual-gap-x: calc(18px * var(--dash-sx));
+
+  --base-metric-card-pad-x: calc(-17px * var(--dash-sx));
+
+  /* Ajustes finos dos textos dos quadrados */
+  --base-metric-percent-size: calc(43px * var(--dash-scale));
+  --base-metric-percent-offset-y: calc(-18px * var(--dash-sy));
+  --base-metric-value-size: calc(48px * var(--dash-scale));
+  --base-metric-label-size: calc(24px * var(--dash-scale));
+  --base-metric-label-offset-y: calc(10px * var(--dash-sy));
+}
+
+.section--base .base-section-card {
+  background: #FFFFFF;
+  box-shadow: none;
+}
+
+.section--base .base-section-content {
+  height: 100%;
+  padding: calc(28px * var(--dash-sy)) calc(35px * var(--dash-sx)) calc(20px * var(--dash-sy)) calc(35px * var(--dash-sx));
+  gap: 0;
+  overflow: hidden;
+}
+
+.section--base .base-prototype-title {
+  color: #111111;
+  font-size: var(--base-title-size);
+  line-height: 1.02;
+  font-weight: 400;
+  letter-spacing: -0.04em;
+  flex: 0 0 auto;
+  transform: translateX(var(--base-title-offset-x)) translateY(var(--base-title-offset-y));
+}
+
+.section--base .base-prototype-topline {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  justify-content: flex-end;
+  width: 100%;
+  gap: calc(12px * var(--dash-sx));
+  margin-top: calc(145px * var(--dash-sy));
+  padding-right: calc(14px * var(--dash-sx));
+  flex: 0 0 auto;
+  text-align: right;
+  transform: translateX(var(--base-topline-offset-x)) translateY(var(--base-topline-offset-y));
+}
+
+.section--base .base-active-value {
+  color: #000000;
+  font-size: var(--base-active-value-size);
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin: 0;
+  flex: 0 0 auto;
+}
+
+.section--base .base-active-label {
+  color: #9a9a9a;
+  font-size: var(--base-active-label-size);
+  line-height: 1.12;
+  font-weight: 400;
+  white-space: nowrap;
+  margin: 0;
+  text-align: right;
+  flex: 0 0 auto;
+  align-self: flex-end;
+}
+
+.section--base .base-prototype-metrics {
+  display: flex;
+  align-items: stretch;
+  gap: var(--base-metric-card-gap);
+  margin-top: calc(-81px * var(--dash-sy));
+  padding-left: calc(14px * var(--dash-sx));
+  padding-right: calc(14px * var(--dash-sx));
+  flex: 0 0 auto;
+}
+
+.section--base .base-metric-card {
+  flex: 1 1 0;
+  min-width: 0;
+  border-radius: calc(22px * var(--dash-scale));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: var(--base-metric-card-height);
+  padding: calc(14px * var(--dash-sy)) var(--base-metric-card-pad-x);
+  background: #d1cdc8;
+}
+
+/* aproxima/afasta apenas visualmente, sem mexer na largura */
+.section--base .base-metric-card:nth-child(1) {
+  transform: translateX(var(--base-metric-visual-gap-x));
+}
+
+.section--base .base-metric-card:nth-child(2) {
+  transform: translateX(0);
+}
+
+.section--base .base-metric-card:nth-child(3) {
+  transform: translateX(calc(-1 * var(--base-metric-visual-gap-x)));
+}
+
+.section--base .base-metric-card--fc {
+  background: #f15a16;
+}
+
+.section--base .base-metric-card--dre {
+  background: #22201f;
+}
+
+.section--base .base-metric-card--ind {
+  background: #cfcac4;
+}
+
+.section--base .base-metric-percent {
+  font-size: var(--base-metric-percent-size);
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-top: 0;
+  transform: translateY(var(--base-metric-percent-offset-y));
+}
+
+.section--base .base-metric-value {
+  font-size: var(--base-metric-value-size);
+  line-height: 1;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  margin-top: calc(14px * var(--dash-sy));
+}
+
+.section--base .base-metric-label {
+  font-size: var(--base-metric-label-size);
+  line-height: 1;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  margin-top: calc(8px * var(--dash-sy));
+  transform: translateY(var(--base-metric-label-offset-y));
+}
+
+.section--base .base-metric-card--fc .base-metric-percent,
+.section--base .base-metric-card--fc .base-metric-value,
+.section--base .base-metric-card--fc .base-metric-label,
+.section--base .base-metric-card--dre .base-metric-percent,
+.section--base .base-metric-card--dre .base-metric-value,
+.section--base .base-metric-card--dre .base-metric-label {
+  color: #ffffff;
+}
+
+.section--base .base-metric-card--ind .base-metric-percent,
+.section--base .base-metric-card--ind .base-metric-value,
+.section--base .base-metric-card--ind .base-metric-label {
+  color: #000000;
+}
+
+.section--base .base-section-footer {
+  display: none;
+}

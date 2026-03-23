@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <script>
+      (function () {
+        function setDashScale() {
+          try {
+            const html = document.documentElement;
+            const width = window.innerWidth || document.documentElement.clientWidth || 0;
+            const height = window.innerHeight || document.documentElement.clientHeight || 0;
+
+            const designW = parseFloat(getComputedStyle(html).getPropertyValue("--dash-design-w")) || 1920;
+            const designH = parseFloat(getComputedStyle(html).getPropertyValue("--dash-design-h")) || 1080;
+
+            const sx = Math.max(0, width / designW);
+            const sy = Math.max(0, height / designH);
+            const uniformScale = Math.min(sx, sy);
+
+            html.style.setProperty("--dash-sx", (Math.round(sx * 10000) / 10000).toString());
+            html.style.setProperty("--dash-sy", (Math.round(sy * 10000) / 10000).toString());
+            html.style.setProperty("--dash-scale", (Math.round(uniformScale * 10000) / 10000).toString());
+          } catch (e) {
+            document.documentElement.style.setProperty("--dash-sx", "1");
+            document.documentElement.style.setProperty("--dash-sy", "1");
+            document.documentElement.style.setProperty("--dash-scale", "1");
+          }
+        }
+
+        window.addEventListener("resize", setDashScale, { passive: true });
+        window.addEventListener("DOMContentLoaded", setDashScale);
+        setDashScale();
+      })();
+    </script>
+
+    <style>
+      __DASHBOARD_CSS__
+    </style>
+  </head>
+
+  <body>
+    <div class="dashboard-viewport">
+      <div class="omission-layout">
+        <div class="layout-cell layout-base">__CARD_BASE__</div>
+        <div class="layout-cell layout-atualizacao">__CARD_ATUALIZACAO__</div>
+        <div class="layout-cell layout-rotina">__CARD_ROTINA__</div>
+        <div class="layout-cell layout-avancado">__CARD_AVANCADO__</div>
+        <div class="layout-cell layout-entregas-finais">__CARD_ENTREGAS_FINAIS__</div>
+      </div>
+    </div>
+  </body>
+</html>

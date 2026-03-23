@@ -1,0 +1,124 @@
+/*
+  Card Entregas Finais
+  Ajustado para ocupar melhor a largura do card, manter os títulos/botão originais
+  e aproximar a composição visual do protótipo sem alterar a estrutura do dashboard.
+*/
+
+.section--entregas-finais {
+  --entregas-card-bg: #ffffff;
+  --entregas-inner-bg: #f6f6f6;
+  --entregas-card-radius: calc(31px * var(--dash-scale));
+  --entregas-inner-radius: calc(18px * var(--dash-scale));
+
+  --entregas-pad-top: calc(18px * var(--dash-sy));
+  --entregas-pad-x: calc(34px * var(--dash-sx));
+  --entregas-pad-bottom: calc(18px * var(--dash-sy));
+
+  --entregas-groups-gap-x: calc(34px * var(--dash-sx));
+  --entregas-groups-gap-y: 0px;
+
+  --entregas-title-size: calc(22px * var(--dash-scale));
+  --entregas-title-gap: calc(16px * var(--dash-sy));
+  --entregas-title-offset-x: 0px;
+  --entregas-title-offset-y: 0px;
+
+  --entregas-group-card-height: calc(130px * var(--dash-sy));
+  --entregas-group-card-pad-top: calc(18px * var(--dash-sy));
+  --entregas-group-card-pad-x: calc(22px * var(--dash-sx));
+  --entregas-group-card-pad-bottom: calc(18px * var(--dash-sy));
+  --entregas-group-card-gap: calc(16px * var(--dash-sx));
+  --entregas-cards-offset-x: 0px;
+  --entregas-cards-offset-y: 0px;
+
+  --entregas-label-size: calc(17.5px * var(--dash-scale));
+  --entregas-value-size: calc(30px * var(--dash-scale));
+  --entregas-value-gap: calc(14px * var(--dash-sy));
+}
+
+.section--entregas-finais .entregas-section-card {
+  background: var(--entregas-card-bg);
+  box-shadow: none;
+  border-radius: var(--entregas-card-radius);
+}
+
+.section--entregas-finais .entregas-section-content {
+  height: 100%;
+  padding: var(--entregas-pad-top) var(--entregas-pad-x) var(--entregas-pad-bottom) var(--entregas-pad-x);
+  gap: 0;
+  overflow: hidden;
+  justify-content: center;
+}
+
+.section--entregas-finais .entregas-groups {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: var(--entregas-groups-gap-x);
+  row-gap: var(--entregas-groups-gap-y);
+  align-items: start;
+  justify-content: stretch;
+  width: 100%;
+}
+
+.section--entregas-finais .entregas-group {
+  min-width: 0;
+}
+
+.section--entregas-finais .entregas-group-title {
+  color: #060606;
+  font-size: var(--entregas-title-size);
+  line-height: 1.04;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  margin-bottom: var(--entregas-title-gap);
+  white-space: nowrap;
+  transform: translate(var(--entregas-title-offset-x), var(--entregas-title-offset-y));
+}
+
+.section--entregas-finais .entregas-group-card {
+  width: 100%;
+  min-width: 0;
+  height: var(--entregas-group-card-height);
+  border-radius: var(--entregas-inner-radius);
+  background: var(--entregas-inner-bg);
+  padding: var(--entregas-group-card-pad-top) var(--entregas-group-card-pad-x) var(--entregas-group-card-pad-bottom) var(--entregas-group-card-pad-x);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: var(--entregas-group-card-gap);
+  align-items: stretch;
+  transform: translate(var(--entregas-cards-offset-x), var(--entregas-cards-offset-y));
+}
+
+.section--entregas-finais .entregas-metric {
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
+
+.section--entregas-finais .entregas-metric-label {
+  color: #454545;
+  font-size: var(--entregas-label-size);
+  line-height: 1.02;
+  font-weight: 400;
+  letter-spacing: -0.025em;
+  white-space: pre-line;
+  text-align: center;
+}
+
+.section--entregas-finais .entregas-metric-value {
+  margin-top: var(--entregas-value-gap);
+  color: #060606;
+  font-size: var(--entregas-value-size);
+  line-height: 0.92;
+  font-weight: 600;
+  letter-spacing: -0.055em;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.section--entregas-finais .entregas-section-footer {
+  display: none;
+}

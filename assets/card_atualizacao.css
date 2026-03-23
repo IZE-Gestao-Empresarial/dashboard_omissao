@@ -1,0 +1,146 @@
+/*
+  Card Atualização
+  Mantém o layout global do dashboard e altera apenas o conteúdo desta seção.
+
+  Variável principal para aumentar/reduzir tudo do card:
+  --atualizacao-scale-all: 1.02;
+
+  Variável para aumentar apenas o SVG do gauge:
+  --atualizacao-gauge-svg-scale: 1.28;
+*/
+
+.section--atualizacao {
+  --atualizacao-scale-all: 1.02;
+  --atualizacao-gauge-svg-scale: 1.28;
+}
+
+.section--atualizacao .section-header {
+  margin-bottom: calc(22px * var(--dash-sy) * var(--atualizacao-scale-all));
+}
+
+.section--atualizacao .section-pill {
+  min-width: calc(214px * var(--dash-sx) * var(--atualizacao-scale-all));
+}
+
+.section--atualizacao .atualizacao-section-card {
+  position: relative;
+  background: #cdcdcd;
+  border-radius: calc(34px * var(--dash-scale) * var(--atualizacao-scale-all));
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.section--atualizacao .atualizacao-download {
+  position: absolute;
+  top: calc(16px * var(--dash-sy) * var(--atualizacao-scale-all));
+  right: calc(14px * var(--dash-sx) * var(--atualizacao-scale-all));
+  width: calc(48px * var(--dash-scale) * var(--atualizacao-scale-all));
+  height: calc(48px * var(--dash-scale) * var(--atualizacao-scale-all));
+  background: rgba(255, 255, 255, 0.74);
+  color: #565656;
+  z-index: 2;
+}
+
+.section--atualizacao .atualizacao-download svg {
+  width: calc(28px * var(--dash-scale) * var(--atualizacao-scale-all));
+  height: calc(28px * var(--dash-scale) * var(--atualizacao-scale-all));
+  stroke: #575757;
+  stroke-width: 1.7;
+}
+
+.section--atualizacao .atualizacao-section-content {
+  padding: calc(20px * var(--dash-sy) * var(--atualizacao-scale-all)) calc(10px * var(--dash-sx) * var(--atualizacao-scale-all)) calc(18px * var(--dash-sy) * var(--atualizacao-scale-all));
+  justify-content: center;
+}
+
+.section--atualizacao .atualizacao-gauges {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(12px * var(--dash-sy) * var(--atualizacao-scale-all));
+}
+
+.section--atualizacao .atualizacao-gauge {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.section--atualizacao .atualizacao-gauge-shell {
+  position: relative;
+  width: calc(170px * var(--dash-scale) * var(--atualizacao-scale-all));
+  height: calc(170px * var(--dash-scale) * var(--atualizacao-scale-all));
+  display: grid;
+  place-items: center;
+  overflow: visible;
+}
+
+.section--atualizacao .atualizacao-gauge-svg {
+  grid-area: 1 / 1;
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+  justify-self: center;
+  align-self: center;
+  transform: scale(var(--atualizacao-gauge-svg-scale));
+  transform-origin: center center;
+}
+
+.section--atualizacao .atualizacao-gauge-dot {
+  fill: #252422;
+}
+
+.section--atualizacao .atualizacao-gauge-fill {
+  stroke: #f4561f;
+  stroke-width: calc(12px * var(--atualizacao-scale-all));
+  stroke-linecap: round;
+}
+
+.section--atualizacao .atualizacao-gauge-center {
+  grid-area: 1 / 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  justify-self: center;
+  align-self: center;
+  text-align: center;
+  transform: translateY(calc(-3px * var(--dash-sy) * var(--atualizacao-scale-all)));
+  pointer-events: none;
+}
+
+.section--atualizacao .atualizacao-gauge-value-row {
+  display: inline-flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: calc(2px * var(--dash-sx) * var(--atualizacao-scale-all));
+  color: #111111;
+  line-height: 1;
+}
+
+.section--atualizacao .atualizacao-gauge-value {
+  font-size: calc(33px * var(--dash-scale) * var(--atualizacao-scale-all));
+  font-weight: 600;
+  letter-spacing: -0.04em;
+}
+
+.section--atualizacao .atualizacao-gauge-value-suffix {
+  padding-top: calc(6px * var(--dash-sy) * var(--atualizacao-scale-all));
+  font-size: calc(16px * var(--dash-scale) * var(--atualizacao-scale-all));
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+
+.section--atualizacao .atualizacao-gauge-label {
+  margin-top: calc(4px * var(--dash-sy) * var(--atualizacao-scale-all));
+  color: #565656;
+  font-size: calc(15px * var(--dash-scale) * var(--atualizacao-scale-all));
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}

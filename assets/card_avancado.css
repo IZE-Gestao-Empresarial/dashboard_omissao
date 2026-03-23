@@ -1,0 +1,141 @@
+/*
+  Card Avançado / Garantia de LTV e Estratégia
+
+  Variáveis de ajuste fino adicionadas:
+  - --avancado-grid-offset-x / y: move os 3 quadrados juntos
+  - --avancado-grid-gap: aproxima ou afasta os cards entre si
+  - --avancado-value-gap: aproxima ou afasta o número do símbolo %
+  - --avancado-content-offset-x / y: move textos e porcentagens juntos dentro dos cards
+  - --avancado-value-slot-width: reserva uma área fixa para o valor não invadir o texto
+*/
+
+.section--avancado {
+  --avancado-title-size: calc(34px * var(--dash-scale));
+  --avancado-title-color: #060606;
+  --avancado-title-offset-x: calc(0px * var(--dash-sx));
+  --avancado-title-offset-y: calc(12px * var(--dash-sy));
+  --avancado-card-bg: #FFFFFF;
+  --avancado-inner-bg: #F6F6F6;
+  --avancado-inner-radius: calc(20px * var(--dash-scale));
+  --avancado-card-radius: calc(30px * var(--dash-scale));
+  --avancado-pad-top: calc(34px * var(--dash-sy));
+  --avancado-pad-x: calc(46px * var(--dash-sx));
+  --avancado-pad-bottom: calc(20px * var(--dash-sy));
+  --avancado-grid-gap: calc(23px * var(--dash-sx));
+  --avancado-grid-top: calc(78px * var(--dash-sy));
+  --avancado-grid-offset-x: calc(0px * var(--dash-sx));
+  --avancado-grid-offset-y: calc(-31px * var(--dash-sy));
+  --avancado-item-height: calc(95px * var(--dash-sy));
+  --avancado-item-pad-x: calc(18px * var(--dash-sx));
+  --avancado-content-offset-x: calc(0px * var(--dash-sx));
+  --avancado-content-offset-y: calc(3px * var(--dash-sy));
+  --avancado-label-size: calc(18px * var(--dash-scale));
+  --avancado-label-color: #454545;
+  --avancado-value-size: calc(30px * var(--dash-scale));
+  --avancado-percent-size: calc(18px * var(--dash-scale));
+  --avancado-value-gap: calc(4px * var(--dash-sx));
+
+  /* proteção para valores com 3+ dígitos não avançarem sobre o texto */
+  --avancado-value-slot-width: calc(128px * var(--dash-sx));
+  --avancado-label-safe-gap: calc(12px * var(--dash-sx));
+}
+
+.section--avancado .avancado-section-card {
+  background: var(--avancado-card-bg);
+  box-shadow: none;
+  border-radius: var(--avancado-card-radius);
+}
+
+.section--avancado .avancado-section-content {
+  height: 100%;
+  padding:
+    var(--avancado-pad-top)
+    var(--avancado-pad-x)
+    var(--avancado-pad-bottom)
+    var(--avancado-pad-x);
+  gap: 0;
+  overflow: hidden;
+}
+
+.section--avancado .avancado-title {
+  color: var(--avancado-title-color);
+  font-size: var(--avancado-title-size);
+  line-height: 1.04;
+  font-weight: 400;
+  letter-spacing: -0.035em;
+  transform: translateX(var(--avancado-title-offset-x)) translateY(var(--avancado-title-offset-y));
+}
+
+.section--avancado .avancado-grid {
+  margin-top: var(--avancado-grid-top);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: var(--avancado-grid-gap);
+  align-items: stretch;
+  transform: translateX(var(--avancado-grid-offset-x)) translateY(var(--avancado-grid-offset-y));
+}
+
+.section--avancado .avancado-item {
+  position: relative;
+  min-width: 0;
+  height: var(--avancado-item-height);
+  border-radius: var(--avancado-inner-radius);
+  background: var(--avancado-inner-bg);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--avancado-item-pad-x);
+  overflow: hidden;
+}
+
+.section--avancado .avancado-item-label {
+  width: 100%;
+  min-width: 0;
+  white-space: pre-line;
+  padding-right: calc(var(--avancado-value-slot-width) + var(--avancado-label-safe-gap));
+  color: var(--avancado-label-color);
+  font-size: var(--avancado-label-size);
+  line-height: 1.08;
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  transform: translateX(var(--avancado-content-offset-x)) translateY(var(--avancado-content-offset-y));
+}
+
+.section--avancado .avancado-item-value {
+  position: absolute;
+  right: var(--avancado-item-pad-x);
+  top: 50%;
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: var(--avancado-value-gap);
+  min-width: var(--avancado-value-slot-width);
+  max-width: var(--avancado-value-slot-width);
+  color: #000000;
+  line-height: 1;
+  white-space: nowrap;
+  transform: translateX(var(--avancado-content-offset-x)) translateY(calc(-50% + var(--avancado-content-offset-y)));
+}
+
+.section--avancado .avancado-value-number {
+  display: inline-block;
+  min-width: 0;
+  max-width: 100%;
+  text-align: right;
+  font-size: var(--avancado-value-size);
+  line-height: 0.92;
+  font-weight: 600;
+  letter-spacing: -0.055em;
+  font-variant-numeric: tabular-nums;
+}
+
+.section--avancado .avancado-value-percent {
+  flex: 0 0 auto;
+  font-size: var(--avancado-percent-size);
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+}
+
+.section--avancado .avancado-section-footer {
+  display: none;
+}
