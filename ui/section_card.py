@@ -21,6 +21,8 @@ PERCENT_LABELS = {
     "RADAR ENVIADOS",
     "NÃO ELEGÍVEIS RADAR",
     "DASHS NÃO ATUALIZADOS",
+    "DASHBOARDS ATUALIZADOS",
+    "DASHS ATUALIZADOS",
     "DASHS TRAVADOS POR PDC",
 }
 
@@ -70,27 +72,90 @@ def _split_metric_value(item: dict[str, Any]) -> str:
 
 
 
+def _extract_numeric_value(item: dict[str, Any] | None) -> float | None:
+    if not item:
+        return None
+
+    raw_value = item.get("valor")
+    if isinstance(raw_value, (int, float)):
+        return float(raw_value)
+
+    formatted = str(item.get("formattedValue") or raw_value or "").strip()
+    if not formatted:
+        return None
+
+    normalized = formatted.replace("%", "").replace(" ", "").strip()
+    if "," in normalized and "." in normalized:
+        normalized = normalized.replace(".", "").replace(",", ".")
+    elif "," in normalized:
+        normalized = normalized.replace(",", ".")
+
+    try:
+        return float(normalized)
+    except ValueError:
+        return None
+
+
+
+def _format_plain_number(value: float | None) -> str:
+    if value is None:
+        return "-"
+
+    if abs(value - round(value)) < 1e-9:
+        text = f"{int(round(value)):,}".replace(",", ".")
+        return escape(text)
+
+    text = f"{value:,.2f}".replace(",", "_").replace(".", ",").replace("_", ".")
+    return escape(text)
+
+
+
+def _format_percent_number(value: float | None) -> str:
+    if value is None:
+        return "-"
+
+    text = f"{value:,.2f}%".replace(",", "_").replace(".", ",").replace("_", ".")
+    return escape(text)
+
+
+
+def _is_total_base_item(label: str) -> bool:
+    normalized = _normalize_lookup_label(label)
+    return "BASE" in normalized and "TOTAL" in normalized and "CLIENT" in normalized
+
+
+
 def _render_base_section(section: dict[str, Any], updated_at: str | None = None) -> str:
     items = section.get("itens") or []
 
-    clientes_ativos = next((item for item in items if str(item.get("indicador") or "").strip().upper() == "CLIENTES ATIVOS"), None)
-    metric_items = [
-        item for item in items
-        if str(item.get("indicador") or "").strip().upper() != "CLIENTES ATIVOS"
-    ][:3]
+    clientes_ativos = _find_item_by_predicate(items, lambda label: label == "CLIENTES ATIVOS")
+    total_base_clientes = _find_item_by_predicate(items, _is_total_base_item)
+
+    fc_item = _find_item_by_predicate(items, lambda label: label == "FC" or " FC" in label or label.startswith("FC "))
+    dre_item = _find_item_by_predicate(items, lambda label: label == "DRE" or " DRE" in label or label.startswith("DRE "))
+    ind_item = _find_item_by_predicate(items, lambda label: label == "INDICADORES" or label == "IND" or "INDIC" in label)
+
+    metric_items = [fc_item, dre_item, ind_item]
 
     active_value = escape(str(clientes_ativos.get("formattedValue") or clientes_ativos.get("valor") or "-")) if clientes_ativos else "-"
+    total_base_value = _format_plain_number(_extract_numeric_value(total_base_clientes))
+
+    clientes_ativos_num = _extract_numeric_value(clientes_ativos)
+    total_base_num = _extract_numeric_value(total_base_clientes)
+    cobertura_value = None
+    if clientes_ativos_num is not None and total_base_num not in (None, 0):
+        cobertura_value = (clientes_ativos_num / total_base_num) * 100.0
+    cobertura_display = _format_percent_number(cobertura_value)
 
     cards_html = []
     color_classes = ["base-metric-card--fc", "base-metric-card--dre", "base-metric-card--ind"]
     for idx, item in enumerate(metric_items):
-        label = _normalize_base_label(str(item.get("indicador") or "-"))
-        value = _split_metric_value(item)
+        label = _normalize_base_label(str((item or {}).get("indicador") or "-"))
+        value = _format_metric_value(item or {}, include_suffix=True) if item else "-"
         color_class = color_classes[idx] if idx < len(color_classes) else ""
         cards_html.append(
             f"""
             <article class="base-metric-card {color_class}">
-              <div class="base-metric-percent">%</div>
               <div class="base-metric-value">{value}</div>
               <div class="base-metric-label">{escape(label)}</div>
             </article>
@@ -101,7 +166,6 @@ def _render_base_section(section: dict[str, Any], updated_at: str | None = None)
         cards_html.append(
             """
             <article class="base-metric-card">
-              <div class="base-metric-percent">%</div>
               <div class="base-metric-value">-</div>
               <div class="base-metric-label">-</div>
             </article>
@@ -126,8 +190,18 @@ def _render_base_section(section: dict[str, Any], updated_at: str | None = None)
         <div class="section-card-content base-section-content">
           <div class="base-prototype-title">Coração da operação</div>
           <div class="base-prototype-topline">
-            <div class="base-active-value">{active_value}</div>
-            <div class="base-active-label">Qnt. Clientes ativos</div>
+            <div class="base-top-stat">
+              <div class="base-top-stat-value">{active_value}</div>
+              <div class="base-top-stat-label">Qnt. Clientes ativos</div>
+            </div>
+            <div class="base-top-stat">
+              <div class="base-top-stat-value">{total_base_value}</div>
+              <div class="base-top-stat-label">Base Total</div>
+            </div>
+            <div class="base-top-stat">
+              <div class="base-top-stat-value">{cobertura_display}</div>
+              <div class="base-top-stat-label">Ativos / Base</div>
+            </div>
           </div>
           <div class="base-prototype-metrics">
             {''.join(cards_html)}
@@ -156,14 +230,17 @@ def _find_item_by_predicate(items: list[dict[str, Any]], predicate) -> dict[str,
 
 
 
+def _format_rotina_number(item: dict[str, Any] | None) -> str:
+    return _format_plain_number(_extract_numeric_value(item))
+
+
+
 def _render_rotina_metric_card(item: dict[str, Any] | None, *, caption: str, theme_class: str) -> str:
-    value = _split_metric_value(item or {}) if item else "-"
-    percent_html = '<span class="rotina-metric-percent">%</span>' if value != '-' else ''
+    value = _format_rotina_number(item)
     return f"""
     <article class="rotina-metric-card {theme_class}">
       <div class="rotina-metric-main">
         <span class="rotina-metric-value">{value}</span>
-        {percent_html}
       </div>
       <div class="rotina-metric-label">{escape(caption)}</div>
     </article>
@@ -197,9 +274,7 @@ def _render_rotina_section(section: dict[str, Any], updated_at: str | None = Non
 
     raw_title = str(section.get("titulo") or "").strip()
     title = "Termômetro de churn" if raw_title.upper() in {"", "ROTINA"} else escape(raw_title)
-    grupos_ativos_valor = escape(
-        str(grupos_ativos.get("formattedValue") or grupos_ativos.get("valor") or "-").replace("%", "").strip()
-    ) if grupos_ativos else "-"
+    grupos_ativos_valor = _format_rotina_number(grupos_ativos)
 
     footer = f'<div class="section-footer rotina-section-footer">Última atualização geral: {escape(updated_at)}</div>' if updated_at else ""
 
@@ -360,13 +435,13 @@ def _render_entregas_metric(item: dict[str, Any] | None, *, label: str) -> str:
 
 
 
-def _render_entregas_group(*, title: str, metric_a_html: str, metric_b_html: str) -> str:
+def _render_entregas_panel(*, title: str, metrics_html: str, panel_class: str = "") -> str:
+    panel_class_attr = f" entregas-panel--{panel_class.strip()}" if panel_class.strip() else ""
     return f"""
-    <article class="entregas-group">
-      <div class="entregas-group-title">{escape(title)}</div>
-      <div class="entregas-group-card">
-        {metric_a_html}
-        {metric_b_html}
+    <article class="entregas-panel{panel_class_attr}">
+      <div class="entregas-panel-title">{escape(title)}</div>
+      <div class="entregas-panel-card">
+        {metrics_html}
       </div>
     </article>
     """.strip()
@@ -540,10 +615,20 @@ def _render_entregas_finais_section(section: dict[str, Any], updated_at: str | N
         items,
         lambda label: "ELEG" in label,
     )
-    dashs_nao_atualizados = _find_item_by_predicate(
+
+    # indicador mudou: de "não atualizados" para "atualizados"
+    dashs_atualizados = _find_item_by_predicate(
         items,
-        lambda label: "DASH" in label and "ATUALIZ" in label,
+        lambda label: (
+            "DASH" in label and "ATUALIZ" in label and "NAO" not in label and "NÃO" not in label
+        ),
     )
+    if not dashs_atualizados:
+        dashs_atualizados = _find_item_by_predicate(
+            items,
+            lambda label: "DASHBOARD" in label and "ATUALIZ" in label,
+        )
+
     travados_pdc = _find_item_by_predicate(
         items,
         lambda label: "TRAV" in label and ("PDC" in label or "P D C" in label),
@@ -551,20 +636,26 @@ def _render_entregas_finais_section(section: dict[str, Any], updated_at: str | N
 
     footer = f'<div class="section-footer entregas-section-footer">Última atualização geral: {escape(updated_at)}</div>' if updated_at else ""
 
-    relatorio_mensal_html = _render_entregas_group(
-        title="Relatório Mensal",
-        metric_a_html=_render_entregas_metric(relatorios_enviados, label="% Relatórios\nEnviados"),
-        metric_b_html=_render_entregas_metric(excecoes_relatorio, label="% Exceções\nRelatório"),
+    entregas_metrics_html = "\n".join([
+        _render_entregas_metric(relatorios_enviados, label="Relatórios\nEnviados"),
+        _render_entregas_metric(radar_enviados, label="Radar\nEnviados"),
+        _render_entregas_metric(dashs_atualizados, label="Dashboards\nAtualizados"),
+    ])
+    nao_entregas_metrics_html = "\n".join([
+        _render_entregas_metric(excecoes_relatorio, label="Exceções\nRelatório"),
+        _render_entregas_metric(nao_elegiveis, label="Não\nElegíveis Radar"),
+        _render_entregas_metric(travados_pdc, label="Travados\npor pdc"),
+    ])
+
+    entregas_html = _render_entregas_panel(
+        title="Entregas",
+        metrics_html=f'<div class="entregas-panel-metrics entregas-panel-metrics--3">{entregas_metrics_html}</div>',
+        panel_class="positive",
     )
-    radar_financeiro_html = _render_entregas_group(
-        title="Radar Financeiro",
-        metric_a_html=_render_entregas_metric(radar_enviados, label="% Radar\nEnviados"),
-        metric_b_html=_render_entregas_metric(nao_elegiveis, label="% Não\nElegíveis"),
-    )
-    dashboard_html = _render_entregas_group(
-        title="Dashboard 4.0",
-        metric_a_html=_render_entregas_metric(dashs_nao_atualizados, label="% Dashs não\natualizados"),
-        metric_b_html=_render_entregas_metric(travados_pdc, label="% Travados\npor pdc"),
+    nao_entregas_html = _render_entregas_panel(
+        title="Não Entregas",
+        metrics_html=f'<div class="entregas-panel-metrics entregas-panel-metrics--3">{nao_entregas_metrics_html}</div>',
+        panel_class="negative",
     )
 
     return f"""
@@ -581,10 +672,9 @@ def _render_entregas_finais_section(section: dict[str, Any], updated_at: str | N
       </div>
       <div class="section-card entregas-section-card">
         <div class="section-card-content entregas-section-content">
-          <div class="entregas-groups">
-            {relatorio_mensal_html}
-            {radar_financeiro_html}
-            {dashboard_html}
+          <div class="entregas-panels">
+            {entregas_html}
+            {nao_entregas_html}
           </div>
         </div>
         {footer}

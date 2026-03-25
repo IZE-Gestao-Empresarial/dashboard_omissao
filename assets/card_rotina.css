@@ -24,7 +24,7 @@
 
   --rotina-below-title-offset-y: calc(18px * var(--dash-sy));
   --rotina-matrix-shift-x: calc(6px * var(--dash-sx));
-  --rotina-matrix-shift-y: calc(50px * var(--dash-sy));
+  --rotina-matrix-shift-y: calc(65px * var(--dash-sy));
 
   --rotina-summary-value-size: calc(49px * var(--dash-scale));
   --rotina-summary-label-size: calc(17px * var(--dash-scale));

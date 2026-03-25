@@ -1,38 +1,29 @@
 /*
-  Card Base — ajuste sem alterar a altura estrutural da seção.
-  Mantém a estrutura original: section-header + section-card.
-  Todo o visual fica escopado em .section--base.
+  Card Base — organização do coração da operação.
+  Mantém a estrutura original da seção e padroniza a leitura:
+  valor em cima, centralizado, e rótulo embaixo menor e sem bold.
 */
 
 .section--base {
-  --base-topline-offset-y: calc(-100px * var(--dash-sy));
-  --base-topline-offset-x: calc(-22px * var(--dash-sx));
-
   --base-title-size: calc(45px * var(--dash-scale));
   --base-title-offset-x: calc(6px * var(--dash-sx));
   --base-title-offset-y: calc(14px * var(--dash-sy));
 
-  --base-active-value-size: calc(49px * var(--dash-scale));
-  --base-active-label-size: calc(17px * var(--dash-scale));
+  --base-topline-offset-y: calc(-64px * var(--dash-sy));
+  --base-topline-offset-x: calc(0px * var(--dash-sx));
+  --base-top-text-offset-y: calc(-9px * var(--dash-sy));
+  --base-top-stat-gap: calc(39px * var(--dash-sx));
+  --base-top-stat-offset-x: calc(18px * var(--dash-sx));
+  --base-top-value-size: calc(40px * var(--dash-scale));
+  --base-top-label-size: calc(16px * var(--dash-scale));
+  --base-top-to-metrics-gap-y: calc(-61px * var(--dash-sy));
 
   --base-metric-card-height: calc(246px * var(--dash-sy));
-  --base-metric-card-gap: calc(39px * var(--dash-sx)); /* gap estrutural fixo */
-
-  /* 
-    Ajuste visual do espaçamento entre os quadrados:
-    valor positivo = aproxima os quadrados
-    valor negativo = afasta os quadrados
-    não altera largura, só posição
-  */
+  --base-metric-card-gap: calc(39px * var(--dash-sx));
   --base-metric-visual-gap-x: calc(18px * var(--dash-sx));
-
-  --base-metric-card-pad-x: calc(-17px * var(--dash-sx));
-
-  /* Ajustes finos dos textos dos quadrados */
-  --base-metric-percent-size: calc(43px * var(--dash-scale));
-  --base-metric-percent-offset-y: calc(-18px * var(--dash-sy));
+  --base-metric-card-pad-x: calc(12px * var(--dash-sx));
   --base-metric-value-size: calc(48px * var(--dash-scale));
-  --base-metric-label-size: calc(24px * var(--dash-scale));
+  --base-metric-label-size: calc(19px * var(--dash-scale));
   --base-metric-label-offset-y: calc(10px * var(--dash-sy));
 }
 
@@ -60,45 +51,63 @@
 
 .section--base .base-prototype-topline {
   display: flex;
-  flex-direction: row;
-  align-items: flex-end;
-  justify-content: flex-end;
+  align-items: flex-start;
+  gap: var(--base-top-stat-gap);
   width: 100%;
-  gap: calc(12px * var(--dash-sx));
-  margin-top: calc(145px * var(--dash-sy));
+  margin-top: calc(124px * var(--dash-sy));
+  padding-left: calc(14px * var(--dash-sx));
   padding-right: calc(14px * var(--dash-sx));
-  flex: 0 0 auto;
-  text-align: right;
-  transform: translateX(var(--base-topline-offset-x)) translateY(var(--base-topline-offset-y));
+  transform:
+    translateX(var(--base-topline-offset-x))
+    translateY(calc(var(--base-topline-offset-y) + var(--base-top-text-offset-y)));
 }
 
-.section--base .base-active-value {
+.section--base .base-top-stat {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+}
+
+.section--base .base-top-stat:nth-child(1) {
+  transform: translateX(var(--base-top-stat-offset-x));
+}
+
+.section--base .base-top-stat:nth-child(2) {
+  transform: translateX(0);
+}
+
+.section--base .base-top-stat:nth-child(3) {
+  transform: translateX(calc(-1 * var(--base-top-stat-offset-x)));
+}
+
+.section--base .base-top-stat-value {
   color: #000000;
-  font-size: var(--base-active-value-size);
+  font-size: var(--base-top-value-size);
   line-height: 1;
   font-weight: 700;
   letter-spacing: -0.03em;
   margin: 0;
-  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
-.section--base .base-active-label {
-  color: #9a9a9a;
-  font-size: var(--base-active-label-size);
-  line-height: 1.12;
+.section--base .base-top-stat-label {
+  color: #8f8f8f;
+  font-size: var(--base-top-label-size);
+  line-height: 1.14;
   font-weight: 400;
-  white-space: nowrap;
-  margin: 0;
-  text-align: right;
-  flex: 0 0 auto;
-  align-self: flex-end;
+  margin-top: calc(10px * var(--dash-sy));
+  text-align: center;
 }
 
 .section--base .base-prototype-metrics {
   display: flex;
   align-items: stretch;
   gap: var(--base-metric-card-gap);
-  margin-top: calc(-81px * var(--dash-sy));
+  margin-top: var(--base-top-to-metrics-gap-y);
   padding-left: calc(14px * var(--dash-sx));
   padding-right: calc(14px * var(--dash-sx));
   flex: 0 0 auto;
@@ -112,12 +121,12 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  text-align: center;
   height: var(--base-metric-card-height);
-  padding: calc(14px * var(--dash-sy)) var(--base-metric-card-pad-x);
+  padding: calc(18px * var(--dash-sy)) var(--base-metric-card-pad-x);
   background: #d1cdc8;
 }
 
-/* aproxima/afasta apenas visualmente, sem mexer na largura */
 .section--base .base-metric-card:nth-child(1) {
   transform: translateX(var(--base-metric-visual-gap-x));
 }
@@ -142,42 +151,30 @@
   background: #cfcac4;
 }
 
-.section--base .base-metric-percent {
-  font-size: var(--base-metric-percent-size);
-  line-height: 1;
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  margin-top: 0;
-  transform: translateY(var(--base-metric-percent-offset-y));
-}
-
 .section--base .base-metric-value {
   font-size: var(--base-metric-value-size);
   line-height: 1;
   font-weight: 700;
   letter-spacing: -0.04em;
-  margin-top: calc(14px * var(--dash-sy));
+  margin: 0;
 }
 
 .section--base .base-metric-label {
   font-size: var(--base-metric-label-size);
-  line-height: 1;
+  line-height: 1.08;
   font-weight: 400;
   letter-spacing: -0.01em;
-  margin-top: calc(8px * var(--dash-sy));
+  margin-top: calc(12px * var(--dash-sy));
   transform: translateY(var(--base-metric-label-offset-y));
 }
 
-.section--base .base-metric-card--fc .base-metric-percent,
 .section--base .base-metric-card--fc .base-metric-value,
 .section--base .base-metric-card--fc .base-metric-label,
-.section--base .base-metric-card--dre .base-metric-percent,
 .section--base .base-metric-card--dre .base-metric-value,
 .section--base .base-metric-card--dre .base-metric-label {
   color: #ffffff;
 }
 
-.section--base .base-metric-card--ind .base-metric-percent,
 .section--base .base-metric-card--ind .base-metric-value,
 .section--base .base-metric-card--ind .base-metric-label {
   color: #000000;
