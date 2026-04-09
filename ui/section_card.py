@@ -251,32 +251,26 @@ def _render_rotina_metric_card(item: dict[str, Any] | None, *, caption: str, the
 def _render_rotina_section(section: dict[str, Any], updated_at: str | None = None) -> str:
     items = section.get("itens") or []
 
+
     grupos_ativos = _find_item_by_predicate(
         items,
-        lambda label: "GRUPO" in label and "ATIV" in label,
+        lambda label: ("GRUPO" in label and "ATIV" in label)
+                      or ("WPP" in label and "ATIV" in label)
+                      or ("WHATSAPP" in label and "ATIV" in label),
     )
-    geral_3_dias = _find_item_by_predicate(
+    geral_inativos = _find_item_by_predicate(
         items,
-        lambda label: "GERAL" in label and "3" in label,
+        lambda label: "INATIV" in label,
     )
-    consultor_3_dias = _find_item_by_predicate(
-        items,
-        lambda label: "CONSULT" in label and "3" in label,
-    )
-    geral_5_dias = _find_item_by_predicate(
-        items,
-        lambda label: "GERAL" in label and "5" in label,
-    )
-    consultor_5_dias = _find_item_by_predicate(
-        items,
-        lambda label: "CONSULT" in label and "5" in label,
-    )
+
+    grupos_ativos_valor = _format_rotina_number(grupos_ativos)
+    inativos_valor = _format_rotina_number(geral_inativos)
+    inativos_label = escape(str((geral_inativos or {}).get("indicador") or "Geral - Inativos").strip())
+
+    footer = f'<div class="section-footer rotina-section-footer">Última atualização geral: {escape(updated_at)}</div>' if updated_at else ""
 
     raw_title = str(section.get("titulo") or "").strip()
     title = "Termômetro de churn" if raw_title.upper() in {"", "ROTINA"} else escape(raw_title)
-    grupos_ativos_valor = _format_rotina_number(grupos_ativos)
-
-    footer = f'<div class="section-footer rotina-section-footer">Última atualização geral: {escape(updated_at)}</div>' if updated_at else ""
 
     return f"""
     <section class="omission-section section--rotina">
@@ -299,13 +293,9 @@ def _render_rotina_section(section: dict[str, Any], updated_at: str | None = Non
               <span class="rotina-summary-label">Grupos wpp ativos</span>
             </div>
           </div>
-          <div class="rotina-matrix">
-            <div class="rotina-row-label">3 Dias</div>
-            {_render_rotina_metric_card(geral_3_dias, caption="Geral", theme_class="rotina-metric-card--light")}
-            {_render_rotina_metric_card(consultor_3_dias, caption="Consultor", theme_class="rotina-metric-card--dark")}
-            <div class="rotina-row-label">5 Dias</div>
-            {_render_rotina_metric_card(geral_5_dias, caption="Geral", theme_class="rotina-metric-card--black")}
-            {_render_rotina_metric_card(consultor_5_dias, caption="Consultor", theme_class="rotina-metric-card--orange")}
+          <div class="rotina-inativos-card">
+            <span class="rotina-metric-value">{inativos_valor}</span>
+            <span class="rotina-metric-label">{inativos_label}</span>
           </div>
         </div>
         {footer}
