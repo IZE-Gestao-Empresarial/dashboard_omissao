@@ -191,12 +191,12 @@ def _render_base_section(section: dict[str, Any], updated_at: str | None = None)
           <div class="base-prototype-title">Coração da operação</div>
           <div class="base-prototype-topline">
             <div class="base-top-stat">
-              <div class="base-top-stat-value">{active_value}</div>
-              <div class="base-top-stat-label">Qnt. Clientes ativos</div>
-            </div>
-            <div class="base-top-stat">
               <div class="base-top-stat-value">{total_base_value}</div>
               <div class="base-top-stat-label">Base Total</div>
+            </div>
+            <div class="base-top-stat">
+              <div class="base-top-stat-value">{active_value}</div>
+              <div class="base-top-stat-label">Qnt. Clientes ativos</div>
             </div>
             <div class="base-top-stat">
               <div class="base-top-stat-value">{cobertura_display}</div>
