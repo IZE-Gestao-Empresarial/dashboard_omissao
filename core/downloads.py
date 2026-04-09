@@ -23,6 +23,12 @@ _DOWNLOAD_SPECS = {
         "filename_prefix": "base_indicadores",
         "label": "Base",
         "source": "dashboard_api",
+        "extra_sheets": [
+            {
+                "sheet_names": ["DETALHAMENTO_CANCELADOS"],
+                "source": "details_api",
+            }
+        ],
     },
     "atualizacao": {
         "sheet_names": ["DETALHAMENTO_ATUALIZACAO"],
@@ -301,6 +307,34 @@ def _records_to_xlsx_bytes(records: Sequence[dict[str, Any]], *, sheet_title: st
     workbook.save(output)
     return output.getvalue()
 
+def _write_records_to_worksheet(worksheet, records: Sequence[dict[str, Any]]) -> None:
+    records = _prettify_records(records)
+    if not records:
+        worksheet["A1"] = "Sem dados"
+        worksheet["A1"].font = Font(bold=True)
+        return
+    headers = list(records[0].keys())
+    worksheet.append(headers)
+    for cell in worksheet[1]:
+        cell.font = Font(bold=True)
+        cell.alignment = Alignment(horizontal="center", vertical="center")
+    for record in records:
+        worksheet.append([record.get(header) for header in headers])
+    worksheet.freeze_panes = "A2"
+    worksheet.auto_filter.ref = worksheet.dimensions
+    _autosize_columns(worksheet)
+
+
+def _records_to_xlsx_bytes_multi(sheets: list[tuple[str, list[dict[str, Any]]]]) -> bytes:
+    workbook = Workbook()
+    workbook.remove(workbook.active)
+    for sheet_title, records in sheets:
+        worksheet = workbook.create_sheet(title=sheet_title[:31])
+        _write_records_to_worksheet(worksheet, records)
+    output = BytesIO()
+    workbook.save(output)
+    return output.getvalue()
+
 
 def _resolve_workbook_bytes() -> bytes:
     local_path = _get_secret_str("DETAIL_WORKBOOK_PATH", "")
@@ -351,6 +385,39 @@ def _fetch_xlsx_bytes_for_sheet(sheet_name: str, *, source: str = "details_api")
     workbook_bytes = _resolve_workbook_bytes()
     return _copy_sheet_only(workbook_bytes, sheet_name)
 
+def _fetch_records_for_sheet(sheet_name: str, *, source: str = "details_api") -> list[dict[str, Any]]:
+    if source == "dashboard_api":
+        dashboard_url = _get_secret_str("SHEETS_WEBAPP_URL")
+        dashboard_token = _get_secret_str("SHEETS_WEBAPP_TOKEN")
+        if not dashboard_url or not dashboard_token:
+            raise RuntimeError("Configure SHEETS_WEBAPP_URL e SHEETS_WEBAPP_TOKEN.")
+        payload = _fetch_dashboard_sheet_payload(dashboard_url, dashboard_token, sheet_name)
+        records = _extract_records(payload)
+        if sheet_name == "BASE_INDICADORES":
+            records = _filter_and_normalize_base_records(records)
+        return records
+
+    detail_url = _get_secret_str("DETAILS_WEBAPP_URL")
+    detail_api_key = _get_secret_str("DETAILS_WEBAPP_API_KEY")
+    if detail_url and detail_api_key:
+        payload = _fetch_detail_api_payload(detail_url, detail_api_key, sheet_name)
+        return _extract_records(payload)
+
+    workbook_bytes = _resolve_workbook_bytes()
+    source_wb = load_workbook(BytesIO(workbook_bytes), data_only=True)
+    if sheet_name not in source_wb.sheetnames:
+        raise KeyError(f"Aba '{sheet_name}' não encontrada no workbook local.")
+    source_ws = source_wb[sheet_name]
+    rows = list(source_ws.iter_rows(values_only=True))
+    if not rows:
+        return []
+    headers = [str(v) if v is not None else f"COLUNA_{i + 1}" for i, v in enumerate(rows[0])]
+    return [
+        {headers[i]: row[i] if i < len(row) else None for i in range(len(headers))}
+        for row in rows[1:]
+        if any(c is not None and str(c).strip() != "" for c in row)
+    ]
+
 
 def get_download_spec(download_key: str, updated_at: str | None = None) -> dict[str, str]:
     spec = _DOWNLOAD_SPECS[download_key]
@@ -364,15 +431,49 @@ def get_download_spec(download_key: str, updated_at: str | None = None) -> dict[
 def _build_download_bytes(download_key: str) -> bytes:
     spec = _DOWNLOAD_SPECS[download_key]
     source = str(spec.get("source") or "details_api")
+    extra_sheets_specs: list[dict[str, Any]] = spec.get("extra_sheets", [])
+
+    if not extra_sheets_specs:
+        last_error = None
+        for sheet_name in spec["sheet_names"]:
+            try:
+                return _fetch_xlsx_bytes_for_sheet(sheet_name, source=source)
+            except Exception as exc:
+                last_error = exc
+        raise RuntimeError(str(last_error) if last_error else "Detalhamento indisponível.")
+
+    sheets_data: list[tuple[str, list[dict[str, Any]]]] = []
 
     last_error = None
+    primary_records = None
+    primary_sheet_name = spec["sheet_names"][0]
     for sheet_name in spec["sheet_names"]:
         try:
-            return _fetch_xlsx_bytes_for_sheet(sheet_name, source=source)
-        except Exception as exc:  # noqa: BLE001
+            primary_records = _fetch_records_for_sheet(sheet_name, source=source)
+            primary_sheet_name = sheet_name
+            break
+        except Exception as exc:
             last_error = exc
 
-    raise RuntimeError(str(last_error) if last_error else "Detalhamento indisponível.")
+    if primary_records is None:
+        raise RuntimeError(str(last_error) if last_error else "Detalhamento indisponível.")
+
+    sheets_data.append((primary_sheet_name, primary_records))
+
+    for extra_spec in extra_sheets_specs:
+        extra_source = str(extra_spec.get("source") or "details_api")
+        extra_sheet_name = extra_spec["sheet_names"][0]
+        for sheet_name in extra_spec["sheet_names"]:
+            try:
+                extra_records = _fetch_records_for_sheet(sheet_name, source=extra_source)
+                extra_sheet_name = sheet_name
+                sheets_data.append((extra_sheet_name, extra_records))
+                break
+            except Exception as exc:
+                last_error = exc
+                sheets_data.append((extra_sheet_name, []))
+
+    return _records_to_xlsx_bytes_multi(sheets_data)
 
 
 @st.cache_data(ttl=_CACHE_TTL_SECONDS, show_spinner=False)
