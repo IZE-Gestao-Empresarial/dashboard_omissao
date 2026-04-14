@@ -23,20 +23,18 @@ def _safe_json(resp: requests.Response) -> Dict[str, Any]:
         }
 
 
-@st.cache_data(ttl=CACHE_TTL_SECONDS, show_spinner=False)
-def _fetch(url: str, token: str, sheet: str) -> Dict[str, Any]:
-    response = requests.get(
-        url,
-        params={"token": token, "sheet": sheet},
-        timeout=DEFAULT_TIMEOUT,
-    )
+def _fetch(url: str, token: str, sheet: str, area: str | None = None) -> Dict[str, Any]:
+    params = {"token": token, "sheet": sheet}
+    if area:
+        params["area"] = area
+    response = requests.get(url, params=params, timeout=DEFAULT_TIMEOUT)
     response.raise_for_status()
     return _safe_json(response)
 
 
-def fetch_dashboard_payload(url: str, token: str, sheet: str) -> Dict[str, Any]:
+def fetch_dashboard_payload(url: str, token: str, sheet: str, area: str | None = None) -> Dict[str, Any]:
     try:
-        payload = _fetch(url=url, token=token, sheet=sheet)
+        payload = _fetch(url=url, token=token, sheet=sheet, area=area)
     except requests.HTTPError as exc:
         response = exc.response
         details = _safe_json(response) if response is not None else {}

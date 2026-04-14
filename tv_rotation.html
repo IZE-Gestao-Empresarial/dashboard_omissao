@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>Dashboard TV – Rotação de Áreas</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background: #dfdfdf;
+    }
+
+    .slide {
+      position: fixed;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 1.4s ease-in-out;
+      overflow: hidden;
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .slide iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      border: none;
+      width: 1920px;
+      height: 1080px;
+      transform-origin: top left;
+    }
+
+    #area-badge {
+      position: fixed;
+      bottom: 18px;
+      right: 24px;
+      z-index: 9999;
+      display: flex;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(0,0,0,.18);
+      transition: background .4s, transform .4s;
+    }
+
+    .dot.on {
+      background: rgba(0,0,0,.55);
+      transform: scale(1.35);
+    }
+
+    #progress-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      height: 3px;
+      width: 0%;
+      background: rgba(0,0,0,.22);
+      z-index: 9999;
+      pointer-events: none;
+      transition: width linear;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="slide active" id="slide-0">
+    <iframe
+      id="frame-0"
+      src="http://https://izedashboardomissao.streamlit.app//?embed=true&area_filter=Produto"
+      loading="eager"
+    ></iframe>
+  </div>
+
+  <div class="slide" id="slide-1">
+    <iframe
+      id="frame-1"
+      src="http://https://izedashboardomissao.streamlit.app//?embed=true&area_filter=Servi%C3%A7o"
+      loading="lazy"
+    ></iframe>
+  </div>
+
+  <div class="slide" id="slide-2">
+    <iframe
+      id="frame-2"
+      src="http://https://izedashboardomissao.streamlit.app//?embed=true&area_filter=Markup"
+      loading="lazy"
+    ></iframe>
+  </div>
+
+  <div id="area-badge">
+    <div class="dot on" id="dot-0"></div>
+    <div class="dot"    id="dot-1"></div>
+    <div class="dot"    id="dot-2"></div>
+  </div>
+
+  <div id="progress-bar"></div>
+
+<script>
+  var TOTAL      = 3;
+  var DURACAO_MS = 90000;
+  var FADE_MS    = 2000;
+  var DESIGN_W   = 1920;
+  var DESIGN_H   = 1080;
+
+  function ajustarScale() {
+    var vw = window.innerWidth;
+    var vh = window.innerHeight;
+    var scale   = Math.max(vw / DESIGN_W, vh / DESIGN_H);
+    var scaledW = DESIGN_W * scale;
+    var scaledH = DESIGN_H * scale;
+    var ox = (vw - scaledW) / 2;
+    var oy = (vh - scaledH) / 2;
+    document.querySelectorAll('.slide iframe').forEach(function(f) {
+      f.style.transform =
+        'translate(' + ox + 'px, ' + oy + 'px) scale(' + scale + ')';
+    });
+  }
+
+  ajustarScale();
+  window.addEventListener('resize', ajustarScale);
+
+  var cur = 0;
+
+  function atualizarDots(idx) {
+    for (var i = 0; i < TOTAL; i++) {
+      document.getElementById('dot-' + i).className =
+        'dot' + (i === idx ? ' on' : '');
+    }
+  }
+
+  function iniciarProgressBar() {
+    var bar = document.getElementById('progress-bar');
+    bar.style.transition = 'none';
+    bar.style.width = '0%';
+    bar.getBoundingClientRect(); // força reflow
+    bar.style.transition = 'width ' + DURACAO_MS + 'ms linear';
+    bar.style.width = '100%';
+  }
+
+  function trocar() {
+    var anterior = cur;
+    cur = (cur + 1) % TOTAL;
+
+    document.getElementById('slide-' + cur).classList.add('active');
+    atualizarDots(cur);
+
+    setTimeout(function() {
+      document.getElementById('slide-' + anterior).classList.remove('active');
+    }, FADE_MS);
+
+    // pré-carrega o próximo iframe se ainda era lazy
+    var proximo = (cur + 1) % TOTAL;
+    setTimeout(function() {
+      var nextFrame = document.getElementById('frame-' + proximo);
+      if (nextFrame && nextFrame.getAttribute('loading') === 'lazy') {
+        nextFrame.setAttribute('loading', 'eager');
+        var src = nextFrame.src;
+        nextFrame.src = '';
+        nextFrame.src = src;
+      }
+    }, FADE_MS);
+
+    iniciarProgressBar();
+    setTimeout(trocar, DURACAO_MS);
+  }
+
+  iniciarProgressBar();
+  setTimeout(trocar, DURACAO_MS);
+</script>
+
+</body>
+</html>

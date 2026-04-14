@@ -105,8 +105,6 @@ def _prettify_records(records: Sequence[dict[str, Any]]) -> list[dict[str, Any]]
     return pretty_records
 
 
-
-
 def _strip_accents(value: str) -> str:
     return unicodedata.normalize("NFD", value).encode("ascii", "ignore").decode("ascii")
 
@@ -149,6 +147,7 @@ def _filter_and_normalize_base_records(records: Sequence[dict[str, Any]]) -> lis
 
     return filtered_records
 
+
 def _normalize_filename_chunk(value: str | None) -> str:
     raw = (value or "").strip()
     if not raw:
@@ -170,14 +169,15 @@ def _read_local_workbook(path_str: str) -> bytes:
     return Path(path_str).read_bytes()
 
 
+# FIX: area adicionado e propagado corretamente para o requests.get
 @st.cache_data(ttl=_CACHE_TTL_SECONDS, show_spinner=False)
-def _fetch_detail_api_payload(url: str, api_key: str, sheet_name: str) -> dict[str, Any]:
+def _fetch_detail_api_payload(url: str, api_key: str, sheet_name: str, area: str | None = None) -> dict[str, Any]:
+    params = {"api_key": api_key, "sheet_name": sheet_name}
+    if area:
+        params["area"] = area
     response = requests.get(
         url,
-        params={
-            "api_key": api_key,
-            "sheet_name": sheet_name,
-        },
+        params=params,
         timeout=_DEFAULT_TIMEOUT,
         headers={"Cache-Control": "no-cache"},
     )
@@ -190,14 +190,11 @@ def _fetch_detail_api_payload(url: str, api_key: str, sheet_name: str) -> dict[s
     return payload
 
 
-@st.cache_data(ttl=_CACHE_TTL_SECONDS, show_spinner=False)
-def _fetch_dashboard_sheet_payload(url: str, token: str, sheet_name: str) -> dict[str, Any]:
+def _fetch_dashboard_sheet_payload(url: str, token: str, sheet_name: str, area: str | None = None) -> dict[str, Any]:
+    params = {"token": token, "sheet": sheet_name}
     response = requests.get(
         url,
-        params={
-            "token": token,
-            "sheet": sheet_name,
-        },
+        params=params,
         timeout=_DEFAULT_TIMEOUT,
         headers={"Cache-Control": "no-cache"},
     )
@@ -307,6 +304,7 @@ def _records_to_xlsx_bytes(records: Sequence[dict[str, Any]], *, sheet_title: st
     workbook.save(output)
     return output.getvalue()
 
+
 def _write_records_to_worksheet(worksheet, records: Sequence[dict[str, Any]]) -> None:
     records = _prettify_records(records)
     if not records:
@@ -362,14 +360,21 @@ def _copy_sheet_only(source_bytes: bytes, sheet_name: str) -> bytes:
     return _records_to_xlsx_bytes(records, sheet_title=sheet_name)
 
 
-def _fetch_xlsx_bytes_for_sheet(sheet_name: str, *, source: str = "details_api") -> bytes:
+# FIX: area adicionado e propagado para as funções de fetch
+def _fetch_xlsx_bytes_for_sheet(sheet_name: str, *, source: str = "details_api", area: str | None = None) -> bytes:
     if source == "dashboard_api":
         dashboard_url = _get_secret_str("SHEETS_WEBAPP_URL")
         dashboard_token = _get_secret_str("SHEETS_WEBAPP_TOKEN")
         if not dashboard_url or not dashboard_token:
             raise RuntimeError("Configure SHEETS_WEBAPP_URL e SHEETS_WEBAPP_TOKEN para baixar a aba BASE_INDICADORES.")
-        payload = _fetch_dashboard_sheet_payload(dashboard_url, dashboard_token, sheet_name)
+        payload = _fetch_dashboard_sheet_payload(dashboard_url, dashboard_token, sheet_name, area=area)
         records = _extract_records(payload)
+        if area:
+            area_norm = area.strip().upper()
+            records = [
+                r for r in records
+                if str(r.get("TIME") or r.get("ÁREA") or r.get("AREA") or "").strip().upper() == area_norm
+            ]
         if sheet_name == "BASE_INDICADORES":
             records = _filter_and_normalize_base_records(records)
         return _records_to_xlsx_bytes(records, sheet_title=sheet_name)
@@ -378,21 +383,28 @@ def _fetch_xlsx_bytes_for_sheet(sheet_name: str, *, source: str = "details_api")
     detail_api_key = _get_secret_str("DETAILS_WEBAPP_API_KEY")
 
     if detail_url and detail_api_key:
-        payload = _fetch_detail_api_payload(detail_url, detail_api_key, sheet_name)
+        payload = _fetch_detail_api_payload(detail_url, detail_api_key, sheet_name, area=area)
         records = _extract_records(payload)
         return _records_to_xlsx_bytes(records, sheet_title=sheet_name)
 
     workbook_bytes = _resolve_workbook_bytes()
     return _copy_sheet_only(workbook_bytes, sheet_name)
 
-def _fetch_records_for_sheet(sheet_name: str, *, source: str = "details_api") -> list[dict[str, Any]]:
+
+def _fetch_records_for_sheet(sheet_name: str, *, source: str = "details_api", area: str | None = None) -> list[dict[str, Any]]:
     if source == "dashboard_api":
         dashboard_url = _get_secret_str("SHEETS_WEBAPP_URL")
         dashboard_token = _get_secret_str("SHEETS_WEBAPP_TOKEN")
         if not dashboard_url or not dashboard_token:
             raise RuntimeError("Configure SHEETS_WEBAPP_URL e SHEETS_WEBAPP_TOKEN.")
-        payload = _fetch_dashboard_sheet_payload(dashboard_url, dashboard_token, sheet_name)
+        payload = _fetch_dashboard_sheet_payload(dashboard_url, dashboard_token, sheet_name, area=area)
         records = _extract_records(payload)
+        if area:
+            area_norm = area.strip().upper()
+            records = [
+                r for r in records
+                if str(r.get("TIME") or r.get("ÁREA") or r.get("AREA") or "").strip().upper() == area_norm
+            ]
         if sheet_name == "BASE_INDICADORES":
             records = _filter_and_normalize_base_records(records)
         return records
@@ -400,7 +412,7 @@ def _fetch_records_for_sheet(sheet_name: str, *, source: str = "details_api") ->
     detail_url = _get_secret_str("DETAILS_WEBAPP_URL")
     detail_api_key = _get_secret_str("DETAILS_WEBAPP_API_KEY")
     if detail_url and detail_api_key:
-        payload = _fetch_detail_api_payload(detail_url, detail_api_key, sheet_name)
+        payload = _fetch_detail_api_payload(detail_url, detail_api_key, sheet_name, area=area)
         return _extract_records(payload)
 
     workbook_bytes = _resolve_workbook_bytes()
@@ -428,7 +440,7 @@ def get_download_spec(download_key: str, updated_at: str | None = None) -> dict[
     }
 
 
-def _build_download_bytes(download_key: str) -> bytes:
+def _build_download_bytes(download_key: str, area: str | None = None) -> bytes:
     spec = _DOWNLOAD_SPECS[download_key]
     source = str(spec.get("source") or "details_api")
     extra_sheets_specs: list[dict[str, Any]] = spec.get("extra_sheets", [])
@@ -437,7 +449,7 @@ def _build_download_bytes(download_key: str) -> bytes:
         last_error = None
         for sheet_name in spec["sheet_names"]:
             try:
-                return _fetch_xlsx_bytes_for_sheet(sheet_name, source=source)
+                return _fetch_xlsx_bytes_for_sheet(sheet_name, source=source, area=area)
             except Exception as exc:
                 last_error = exc
         raise RuntimeError(str(last_error) if last_error else "Detalhamento indisponível.")
@@ -449,7 +461,7 @@ def _build_download_bytes(download_key: str) -> bytes:
     primary_sheet_name = spec["sheet_names"][0]
     for sheet_name in spec["sheet_names"]:
         try:
-            primary_records = _fetch_records_for_sheet(sheet_name, source=source)
+            primary_records = _fetch_records_for_sheet(sheet_name, source=source, area=area)
             primary_sheet_name = sheet_name
             break
         except Exception as exc:
@@ -465,7 +477,7 @@ def _build_download_bytes(download_key: str) -> bytes:
         extra_sheet_name = extra_spec["sheet_names"][0]
         for sheet_name in extra_spec["sheet_names"]:
             try:
-                extra_records = _fetch_records_for_sheet(sheet_name, source=extra_source)
+                extra_records = _fetch_records_for_sheet(sheet_name, source=extra_source, area=area)
                 extra_sheet_name = sheet_name
                 sheets_data.append((extra_sheet_name, extra_records))
                 break
@@ -477,8 +489,8 @@ def _build_download_bytes(download_key: str) -> bytes:
 
 
 @st.cache_data(ttl=_CACHE_TTL_SECONDS, show_spinner=False)
-def get_download_bytes(download_key: str) -> bytes:
-    return _build_download_bytes(download_key)
+def get_download_bytes(download_key: str, area: str | None = None) -> bytes:
+    return _build_download_bytes(download_key, area=area)
 
 
 def make_download_callable(download_key: str):

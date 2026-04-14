@@ -63,6 +63,15 @@ def inject_download_overlay_css() -> None:
             overflow: hidden;
           }
 
+          /* FIX: CSS do filtro movido para cá, fora de hide_streamlit_chrome */
+          .st-key-area_filter {
+            position: fixed;
+            left: calc((420 / 1920) * 100vw);
+            top: calc((68 / 1080) * 100vh);
+            width: calc((280 / 1920) * 100vw);
+            z-index: 1001;
+          }
+
           .st-key-dl_base,
           .st-key-dl_atualizacao,
           .st-key-dl_rotina,
@@ -154,8 +163,13 @@ def inject_download_overlay_css() -> None:
             color: transparent !important;
           }
 
-
           @media (max-width: 960px) and (max-height: 540px) {
+            .st-key-area_filter {
+              display: none !important;
+              visibility: hidden !important;
+              pointer-events: none !important;
+            }
+
             .st-key-dl_base,
             .st-key-dl_atualizacao,
             .st-key-dl_rotina,
@@ -172,12 +186,12 @@ def inject_download_overlay_css() -> None:
     )
 
 
-def render_download_overlays(updated_at: str | None = None) -> None:
+def render_download_overlays(updated_at: str | None = None, area: str | None = None) -> None:
     overlay_order = ["base", "atualizacao", "rotina", "avancado", "entrega_final"]
 
     for key in overlay_order:
         spec = get_download_spec(key, updated_at=updated_at)
-        file_bytes = get_download_bytes(key)
+        file_bytes = get_download_bytes(key, area=area)
         st.download_button(
             label=" ",
             data=file_bytes,
@@ -191,6 +205,7 @@ def render_download_overlays(updated_at: str | None = None) -> None:
         )
 
 
+# FIX: set_page_config deve ser a primeira chamada Streamlit
 st.set_page_config(page_title="Dashboard de Omissão", layout="wide")
 hide_streamlit_chrome()
 inject_kiosk_css()
@@ -207,7 +222,29 @@ if not url or not token:
     )
     st.stop()
 
-payload = fetch_dashboard_payload(url=url, token=token, sheet=sheet_name)
+if "selected_area" not in st.session_state:
+    st.session_state.selected_area = None
+
+AREA_OPTIONS = ["Todos", "Produto", "Serviço", "Markup"]
+
+st.selectbox(
+    label="Filtrar por Área",
+    options=AREA_OPTIONS,
+    index=0,
+    key="area_filter",
+    label_visibility="collapsed",
+)
+
+area_filter_value = st.session_state.get("area_filter", "Todos")
+selected_area = None if area_filter_value == "Todos" else area_filter_value
+
+payload = fetch_dashboard_payload(url=url, token=token, sheet=sheet_name, area=selected_area)
+
+print("DEBUG area:", selected_area)
+print("DEBUG sheet:", payload.get("sheet"))
+itens_base = payload.get("cards", {}).get("base", {}).get("itens", [])
+clientes_ativos = next((i["valor"] for i in itens_base if i["indicador"] == "CLIENTES ATIVOS"), "não encontrado")
+print("DEBUG clientes_ativos:", clientes_ativos)
 
 if not payload.get("ok"):
     error_message = payload.get("message") or payload.get("error") or "Falha ao carregar o dashboard."
@@ -258,4 +295,5 @@ html = render_dashboard(
     },
 )
 components.html(html, height=1080, scrolling=False)
-render_download_overlays(updated_at=updated_at)
+
+render_download_overlays(updated_at=updated_at, area=selected_area)
