@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import streamlit as st
 import streamlit.components.v1 as components
+import urllib.parse
 from streamlit_autorefresh import st_autorefresh
 
 from core.data import fetch_dashboard_payload
@@ -294,10 +295,18 @@ if "selected_area" not in st.session_state:
 
 AREA_OPTIONS = ["Todos", "Produto", "Serviço", "Markup"]
 
+# Lê query param ?area_filter= enviado pelo tv_rotation.html
+_area_from_url = urllib.parse.unquote(str(st.query_params.get("area_filter", ""))).strip()
+_default_index = (
+    AREA_OPTIONS.index(_area_from_url)
+    if _area_from_url in AREA_OPTIONS
+    else 0
+)
+
 st.selectbox(
     label="Filtrar por Área",
     options=AREA_OPTIONS,
-    index=0,
+    index=_default_index,
     key="area_filter",
     label_visibility="collapsed",
 )
