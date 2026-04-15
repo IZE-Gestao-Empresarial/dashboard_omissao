@@ -63,13 +63,80 @@ def inject_download_overlay_css() -> None:
             overflow: hidden;
           }
 
-          /* FIX: CSS do filtro movido para cá, fora de hide_streamlit_chrome */
           .st-key-area_filter {
             position: fixed;
             left: calc((420 / 1920) * 100vw);
             top: calc((68 / 1080) * 100vh);
-            width: calc((280 / 1920) * 100vw);
+            width: auto;
             z-index: 1001;
+          }
+
+          .st-key-area_filter label,
+          .st-key-area_filter [data-testid="InputInstructions"],
+          .st-key-area_filter [data-baseweb="select"] > div:first-child > div:last-child svg {
+            display: none !important;
+          }
+
+          .st-key-area_filter [data-baseweb="select"] > div:first-child {
+            background: var(--pill-bg, rgba(255,255,255,0.78)) !important;
+            border: none !important;
+            border-radius: 999px !important;
+            height: 5.185vmin !important;
+            min-height: unset !important;
+            padding: 0 6vmin !important;
+            box-shadow: none !important;
+            gap: 0.926vmin !important;
+            cursor: pointer !important;
+          }
+
+          .st-key-area_filter [data-baseweb="select"] > div:first-child:hover,
+          .st-key-area_filter [data-baseweb="select"] > div:first-child:focus-within {
+            border: none !important;
+            box-shadow: none !important;
+            outline: none !important;
+          }
+
+          .st-key-area_filter [data-baseweb="select"] span,
+          .st-key-area_filter [data-baseweb="select"] [data-testid="stSelectbox"],
+          .st-key-area_filter [data-baseweb="select"] > div:first-child > div:first-child,
+          .st-key-area_filter [data-baseweb="select"] > div:first-child > div:first-child * {
+            color: #4a4a4a !important;
+            font-family: "Inter", system-ui, sans-serif !important;
+            font-size: 2.96vmin !important;
+            font-weight: 400 !important;
+            line-height: 1 !important;
+            letter-spacing: -0.01em !important;
+            padding: 0 !important;
+            white-space: nowrap !important;
+            transform: translateY(4.5px) !important;
+          }
+
+          .st-key-area_filter [data-baseweb="select"] svg {
+            color: #6d6d6d !important;
+            width: calc((22 / 1080) * 100vh) !important;
+            height: calc((22 / 1080) * 100vh) !important;
+            flex-shrink: 0 !important;
+          }
+
+          .st-key-area_filter [data-baseweb="popover"] [data-baseweb="menu"] {
+            border-radius: calc((20 / 1080) * 100vh) !important;
+            border: none !important;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.10) !important;
+            background: rgba(255,255,255,0.97) !important;
+            margin-top: calc((8 / 1080) * 100vh) !important;
+          }
+
+          .st-key-area_filter [data-baseweb="popover"] [role="option"] {
+            font-family: "Inter", system-ui, sans-serif !important;
+            font-size: calc((28 / 1080) * 100vh) !important;
+            font-weight: 400 !important;
+            color: #4a4a4a !important;
+            border-radius: calc((12 / 1080) * 100vh) !important;
+          }
+
+          .st-key-area_filter [data-baseweb="popover"] [role="option"]:hover,
+          .st-key-area_filter [data-baseweb="popover"] [aria-selected="true"] {
+            background: rgba(0,0,0,0.05) !important;
           }
 
           .st-key-dl_base,
