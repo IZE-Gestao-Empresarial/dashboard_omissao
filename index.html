@@ -79,7 +79,7 @@
   <div class="slide active" id="slide-0">
     <iframe
       id="frame-0"
-      src="http://https://izedashboardomissao.streamlit.app//?embed=true&area_filter=Produto"
+      src="https://izedashboardomissao.streamlit.app/?embed=true&area_filter=Produto"
       loading="eager"
     ></iframe>
   </div>
@@ -87,7 +87,7 @@
   <div class="slide" id="slide-1">
     <iframe
       id="frame-1"
-      src="http://https://izedashboardomissao.streamlit.app//?embed=true&area_filter=Servi%C3%A7o"
+      src="https://izedashboardomissao.streamlit.app/?embed=true&area_filter=Servi%C3%A7o"
       loading="lazy"
     ></iframe>
   </div>
@@ -95,7 +95,7 @@
   <div class="slide" id="slide-2">
     <iframe
       id="frame-2"
-      src="http://https://izedashboardomissao.streamlit.app//?embed=true&area_filter=Markup"
+      src="https://izedashboardomissao.streamlit.app/?embed=true&area_filter=Markup"
       loading="lazy"
     ></iframe>
   </div>
@@ -145,7 +145,7 @@
     var bar = document.getElementById('progress-bar');
     bar.style.transition = 'none';
     bar.style.width = '0%';
-    bar.getBoundingClientRect(); // força reflow
+    bar.getBoundingClientRect();
     bar.style.transition = 'width ' + DURACAO_MS + 'ms linear';
     bar.style.width = '100%';
   }
@@ -161,7 +161,6 @@
       document.getElementById('slide-' + anterior).classList.remove('active');
     }, FADE_MS);
 
-    // pré-carrega o próximo iframe se ainda era lazy
     var proximo = (cur + 1) % TOTAL;
     setTimeout(function() {
       var nextFrame = document.getElementById('frame-' + proximo);
