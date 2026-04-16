@@ -14,7 +14,6 @@
   overflow: hidden;
 }
 
-/* Título e summary — idênticos ao original */
 .section--rotina .rotina-header {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -59,11 +58,19 @@
   white-space: nowrap;
 }
 
-/* Retângulo laranja — Geral Inativos */
-.section--rotina .rotina-inativos-card {
-  background: #EB571C;
-  border-radius: calc(25px * var(--dash-scale));
+.section--rotina .rotina-blocks-row {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  gap: calc(14px * var(--dash-sx));
   width: 65%;
+}
+
+.section--rotina .rotina-inativos-card,
+.section--rotina .rotina-reuniao-card {
+  flex: 1 1 0;
+  min-width: 0;
+  border-radius: calc(25px * var(--dash-scale));
   padding: calc(65px * var(--dash-sy)) calc(1px * var(--dash-sx));
   display: flex;
   flex-direction: column;
@@ -72,16 +79,31 @@
   gap: calc(9px * var(--dash-sy));
 }
 
-.section--rotina .rotina-inativos-card .rotina-metric-value {
+.section--rotina .rotina-inativos-card {
+  background: #EB571C;
+}
+
+.section--rotina .rotina-reuniao-card {
+  background: #22201f;
+}
+
+.section--rotina .rotina-inativos-card .rotina-metric-value,
+.section--rotina .rotina-inativos-card .rotina-metric-label,
+.section--rotina .rotina-reuniao-card .rotina-metric-value,
+.section--rotina .rotina-reuniao-card .rotina-metric-label {
   color: #ffffff;
+}
+
+.section--rotina .rotina-inativos-card .rotina-metric-value,
+.section--rotina .rotina-reuniao-card .rotina-metric-value {
   font-size: calc(40px * var(--dash-scale));
   font-weight: 600;
   letter-spacing: -0.05em;
   line-height: 1;
 }
 
-.section--rotina .rotina-inativos-card .rotina-metric-label {
-  color: #ffffff;
+.section--rotina .rotina-inativos-card .rotina-metric-label,
+.section--rotina .rotina-reuniao-card .rotina-metric-label {
   font-size: calc(18px * var(--dash-scale));
   font-weight: 400;
   letter-spacing: -0.01em;

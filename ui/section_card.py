@@ -24,6 +24,7 @@ PERCENT_LABELS = {
     "DASHBOARDS ATUALIZADOS",
     "DASHS ATUALIZADOS",
     "DASHS TRAVADOS POR PDC",
+    "RESUMO REUNIÃO",
 }
 
 
@@ -253,19 +254,25 @@ def _render_rotina_section(section: dict[str, Any], updated_at: str | None = Non
 
 
     grupos_ativos = _find_item_by_predicate(
-        items,
-        lambda label: ("GRUPO" in label and "ATIV" in label)
-                      or ("WPP" in label and "ATIV" in label)
-                      or ("WHATSAPP" in label and "ATIV" in label),
+            items,
+            lambda label: ("GRUPO" in label and "ATIV" in label)
+                          or ("WPP" in label and "ATIV" in label)
+                          or ("WHATSAPP" in label and "ATIV" in label),
     )
     geral_inativos = _find_item_by_predicate(
         items,
         lambda label: "INATIV" in label,
     )
+    resumo_reuniao = _find_item_by_predicate(
+        items,
+        lambda label: "RESUMO" in label and "REUNI" in label,
+    )
 
     grupos_ativos_valor = _format_rotina_number(grupos_ativos)
     inativos_valor = _format_rotina_number(geral_inativos)
     inativos_label = escape(str((geral_inativos or {}).get("indicador") or "Geral - Inativos").strip())
+    resumo_valor = _format_metric_value(resumo_reuniao, include_suffix=True)
+    resumo_label = escape(str((resumo_reuniao or {}).get("indicador") or "Resumo Reunião").strip())
 
     footer = f'<div class="section-footer rotina-section-footer">Última atualização geral: {escape(updated_at)}</div>' if updated_at else ""
 
@@ -293,9 +300,15 @@ def _render_rotina_section(section: dict[str, Any], updated_at: str | None = Non
               <span class="rotina-summary-label">Grupos wpp ativos</span>
             </div>
           </div>
-          <div class="rotina-inativos-card">
-            <span class="rotina-metric-value">{inativos_valor}</span>
-            <span class="rotina-metric-label">{inativos_label}</span>
+          <div class="rotina-blocks-row">
+            <div class="rotina-inativos-card">
+              <span class="rotina-metric-value">{inativos_valor}</span>
+              <span class="rotina-metric-label">{inativos_label}</span>
+            </div>
+            <div class="rotina-reuniao-card">
+              <span class="rotina-metric-value">{resumo_valor}</span>
+              <span class="rotina-metric-label">{resumo_label}</span>
+            </div>
           </div>
         </div>
         {footer}
