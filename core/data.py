@@ -6,7 +6,7 @@ import requests
 import streamlit as st
 
 
-DEFAULT_TIMEOUT = 25
+DEFAULT_TIMEOUT = 60
 CACHE_TTL_SECONDS = 240
 
 
