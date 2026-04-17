@@ -9,29 +9,61 @@
         function setDashScale() {
           try {
             const html = document.documentElement;
-            const width = window.innerWidth || document.documentElement.clientWidth || 0;
-            const height = window.innerHeight || document.documentElement.clientHeight || 0;
 
             const designW = parseFloat(getComputedStyle(html).getPropertyValue("--dash-design-w")) || 1920;
             const designH = parseFloat(getComputedStyle(html).getPropertyValue("--dash-design-h")) || 1080;
 
-            const sx = Math.max(0, width / designW);
-            const sy = Math.max(0, height / designH);
-            const uniformScale = Math.min(sx, sy);
+            // Usa o viewport element como referência real de tamanho,
+            // igual ao template que funciona na TV
+            const vp = document.querySelector(".dashboard-viewport");
+            if (!vp) {
+              // fallback para window se o elemento ainda não existir
+              const w = window.innerWidth  || document.documentElement.clientWidth  || 0;
+              const h = window.innerHeight || document.documentElement.clientHeight || 0;
+              if (w === 0 || h === 0) return;
+              const sx = w / designW;
+              const sy = h / designH;
+              const u  = Math.min(sx, sy);
+              html.style.setProperty("--dash-sx",    sx.toFixed(4));
+              html.style.setProperty("--dash-sy",    sy.toFixed(4));
+              html.style.setProperty("--dash-scale", u.toFixed(4));
+              return;
+            }
 
-            html.style.setProperty("--dash-sx", (Math.round(sx * 10000) / 10000).toString());
-            html.style.setProperty("--dash-sy", (Math.round(sy * 10000) / 10000).toString());
-            html.style.setProperty("--dash-scale", (Math.round(uniformScale * 10000) / 10000).toString());
+            const rect = vp.getBoundingClientRect();
+            const w = rect.width;
+            const h = rect.height;
+            if (w === 0 || h === 0) return;
+
+            const sx = w / designW;
+            const sy = h / designH;
+            const u  = Math.min(sx, sy);
+
+            html.style.setProperty("--dash-sx",    sx.toFixed(4));
+            html.style.setProperty("--dash-sy",    sy.toFixed(4));
+            html.style.setProperty("--dash-scale", u.toFixed(4));
           } catch (e) {
-            document.documentElement.style.setProperty("--dash-sx", "1");
-            document.documentElement.style.setProperty("--dash-sy", "1");
+            document.documentElement.style.setProperty("--dash-sx",    "1");
+            document.documentElement.style.setProperty("--dash-sy",    "1");
             document.documentElement.style.setProperty("--dash-scale", "1");
           }
         }
 
         window.addEventListener("resize", setDashScale, { passive: true });
         window.addEventListener("DOMContentLoaded", setDashScale);
+
         setDashScale();
+        setTimeout(setDashScale, 0);
+        setTimeout(setDashScale, 100);
+        setTimeout(setDashScale, 500);
+
+        if (typeof ResizeObserver !== "undefined") {
+          var ro = new ResizeObserver(function () { setDashScale(); });
+          document.addEventListener("DOMContentLoaded", function () {
+            var vp = document.querySelector(".dashboard-viewport");
+            if (vp) ro.observe(vp);
+          });
+        }
       })();
     </script>
 
