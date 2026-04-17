@@ -23,6 +23,7 @@
       opacity: 0;
       pointer-events: none;
       transition: opacity 1.4s ease-in-out;
+      overflow: hidden;
     }
 
     .slide.active {
@@ -30,13 +31,15 @@
       pointer-events: auto;
     }
 
+    /* iframe fixo em 960x540 — a escala é aplicada via JS (igual ao index-tv) */
     .slide iframe {
       position: absolute;
       top: 0;
       left: 0;
       border: none;
-      width: 100vw;
-      height: 100vh;
+      width: 960px;
+      height: 540px;
+      transform-origin: top left;
     }
 
     #area-badge {
@@ -110,10 +113,34 @@
   <div id="progress-bar"></div>
 
 <script>
+  var DASH_W     = 960;
+  var DASH_H     = 540;
   var TOTAL      = 3;
   var DURACAO_MS = 90000;
-  var FADE_MS    = 2000;
+  var FADE_MS    = 1400; // igual ao transition: opacity 1.4s
 
+  // --- Escala (mesma lógica do index-tv que funciona na TV) ---
+  function ajustarScale() {
+    var vw = window.innerWidth;
+    var vh = window.innerHeight;
+
+    // cover: preenche a tela sem barras pretas
+    var scale   = Math.max(vw / DASH_W, vh / DASH_H);
+    var scaledW = DASH_W * scale;
+    var scaledH = DASH_H * scale;
+    var offsetX = (vw - scaledW) / 2;
+    var offsetY = (vh - scaledH) / 2;
+
+    document.querySelectorAll('.slide iframe').forEach(function(f) {
+      f.style.transform =
+        'translate(' + offsetX + 'px, ' + offsetY + 'px) scale(' + scale + ')';
+    });
+  }
+
+  ajustarScale();
+  window.addEventListener('resize', ajustarScale);
+
+  // --- Rotação ---
   var cur = 0;
 
   function atualizarDots(idx) {
@@ -127,7 +154,7 @@
     var bar = document.getElementById('progress-bar');
     bar.style.transition = 'none';
     bar.style.width = '0%';
-    bar.getBoundingClientRect();
+    bar.getBoundingClientRect(); // força reflow
     bar.style.transition = 'width ' + DURACAO_MS + 'ms linear';
     bar.style.width = '100%';
   }
@@ -143,6 +170,7 @@
       document.getElementById('slide-' + anterior).classList.remove('active');
     }, FADE_MS);
 
+    // Pré-carrega o próximo slide após o fade terminar
     var proximo = (cur + 1) % TOTAL;
     setTimeout(function() {
       var nextFrame = document.getElementById('frame-' + proximo);
