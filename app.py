@@ -370,6 +370,6 @@ html = render_dashboard(
         "updated_at": updated_at,
     },
 )
-components.html(html, height=0, scrolling=False)
+components.html(html, height=1, scrolling=False)
 
 render_download_overlays(updated_at=updated_at, area=selected_area)

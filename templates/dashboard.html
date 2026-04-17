@@ -13,26 +13,9 @@
             const designW = parseFloat(getComputedStyle(html).getPropertyValue("--dash-design-w")) || 1920;
             const designH = parseFloat(getComputedStyle(html).getPropertyValue("--dash-design-h")) || 1080;
 
-            // Usa o viewport element como referência real de tamanho,
-            // igual ao template que funciona na TV
-            const vp = document.querySelector(".dashboard-viewport");
-            if (!vp) {
-              // fallback para window se o elemento ainda não existir
-              const w = window.innerWidth  || document.documentElement.clientWidth  || 0;
-              const h = window.innerHeight || document.documentElement.clientHeight || 0;
-              if (w === 0 || h === 0) return;
-              const sx = w / designW;
-              const sy = h / designH;
-              const u  = Math.min(sx, sy);
-              html.style.setProperty("--dash-sx",    sx.toFixed(4));
-              html.style.setProperty("--dash-sy",    sy.toFixed(4));
-              html.style.setProperty("--dash-scale", u.toFixed(4));
-              return;
-            }
+            const w = window.innerWidth  || 0;
+            const h = window.innerHeight || 0;
 
-            const rect = vp.getBoundingClientRect();
-            const w = rect.width;
-            const h = rect.height;
             if (w === 0 || h === 0) return;
 
             const sx = w / designW;
@@ -51,19 +34,9 @@
 
         window.addEventListener("resize", setDashScale, { passive: true });
         window.addEventListener("DOMContentLoaded", setDashScale);
-
         setDashScale();
         setTimeout(setDashScale, 0);
-        setTimeout(setDashScale, 100);
-        setTimeout(setDashScale, 500);
-
-        if (typeof ResizeObserver !== "undefined") {
-          var ro = new ResizeObserver(function () { setDashScale(); });
-          document.addEventListener("DOMContentLoaded", function () {
-            var vp = document.querySelector(".dashboard-viewport");
-            if (vp) ro.observe(vp);
-          });
-        }
+        setTimeout(setDashScale, 300);
       })();
     </script>
 
