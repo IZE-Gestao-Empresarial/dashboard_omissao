@@ -24,7 +24,6 @@ PERCENT_LABELS = {
     "DASHBOARDS ATUALIZADOS",
     "DASHS ATUALIZADOS",
     "DASHS TRAVADOS POR PDC",
-    "RESUMO REUNIÃO",
 }
 
 
@@ -271,7 +270,7 @@ def _render_rotina_section(section: dict[str, Any], updated_at: str | None = Non
     grupos_ativos_valor = _format_rotina_number(grupos_ativos)
     inativos_valor = _format_rotina_number(geral_inativos)
     inativos_label = escape(str((geral_inativos or {}).get("indicador") or "Geral - Inativos").strip())
-    resumo_valor = _format_metric_value(resumo_reuniao, include_suffix=True)
+    resumo_valor = _format_rotina_number(resumo_reuniao)
     resumo_label = escape(str((resumo_reuniao or {}).get("indicador") or "Resumo Reunião").strip())
 
     footer = f'<div class="section-footer rotina-section-footer">Última atualização geral: {escape(updated_at)}</div>' if updated_at else ""
