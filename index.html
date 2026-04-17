@@ -1,39 +1,42 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
   <title>Dashboard TV – Rotação de Áreas</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
+
     html, body {
       width: 100vw;
       height: 100vh;
       overflow: hidden;
       background: #dfdfdf;
     }
-    .iframe-wrapper {
+
+    .slide {
       position: fixed;
-      top: 0; left: 0;
+      top: 0;
+      left: 0;
       width: 100vw;
       height: 100vh;
       opacity: 0;
       pointer-events: none;
       transition: opacity 1.4s ease-in-out;
-      overflow: hidden;
     }
-    .iframe-wrapper.active {
+
+    .slide.active {
       opacity: 1;
       pointer-events: auto;
     }
-    .iframe-wrapper iframe {
+
+    .slide iframe {
       position: absolute;
       top: 0;
       left: 0;
       border: none;
-      width: 960px;
-      height: 540px;
-      transform-origin: top left;
+      width: 100vw;
+      height: 100vh;
     }
 
     #area-badge {
@@ -74,16 +77,28 @@
 </head>
 <body>
 
-  <div class="iframe-wrapper active" id="w0">
-    <iframe id="frame-0" src="https://izedashboardomissao.streamlit.app/?embed=true&area_filter=Produto" loading="eager"></iframe>
+  <div class="slide active" id="slide-0">
+    <iframe
+      id="frame-0"
+      src="https://izedashboardomissao.streamlit.app/?embed=true&area_filter=Produto"
+      loading="eager"
+    ></iframe>
   </div>
 
-  <div class="iframe-wrapper" id="w1">
-    <iframe id="frame-1" src="https://izedashboardomissao.streamlit.app/?embed=true&area_filter=Servi%C3%A7o" loading="lazy"></iframe>
+  <div class="slide" id="slide-1">
+    <iframe
+      id="frame-1"
+      src="https://izedashboardomissao.streamlit.app/?embed=true&area_filter=Servi%C3%A7o"
+      loading="lazy"
+    ></iframe>
   </div>
 
-  <div class="iframe-wrapper" id="w2">
-    <iframe id="frame-2" src="https://izedashboardomissao.streamlit.app/?embed=true&area_filter=Markup" loading="lazy"></iframe>
+  <div class="slide" id="slide-2">
+    <iframe
+      id="frame-2"
+      src="https://izedashboardomissao.streamlit.app/?embed=true&area_filter=Markup"
+      loading="lazy"
+    ></iframe>
   </div>
 
   <div id="area-badge">
@@ -98,24 +113,6 @@
   var TOTAL      = 3;
   var DURACAO_MS = 90000;
   var FADE_MS    = 2000;
-  var DASH_W     = 960;
-  var DASH_H     = 540;
-
-  function ajustarScale() {
-    var vw = window.innerWidth;
-    var vh = window.innerHeight;
-    var scale   = Math.max(vw / DASH_W, vh / DASH_H);
-    var scaledW = DASH_W * scale;
-    var scaledH = DASH_H * scale;
-    var offsetX = (vw - scaledW) / 2;
-    var offsetY = (vh - scaledH) / 2;
-    document.querySelectorAll('.iframe-wrapper iframe').forEach(function(f) {
-      f.style.transform = 'translate(' + offsetX + 'px, ' + offsetY + 'px) scale(' + scale + ')';
-    });
-  }
-
-  ajustarScale();
-  window.addEventListener('resize', ajustarScale);
 
   var cur = 0;
 
@@ -139,11 +136,11 @@
     var anterior = cur;
     cur = (cur + 1) % TOTAL;
 
-    document.getElementById('w' + cur).classList.add('active');
+    document.getElementById('slide-' + cur).classList.add('active');
     atualizarDots(cur);
 
     setTimeout(function() {
-      document.getElementById('w' + anterior).classList.remove('active');
+      document.getElementById('slide-' + anterior).classList.remove('active');
     }, FADE_MS);
 
     var proximo = (cur + 1) % TOTAL;
