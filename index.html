@@ -31,7 +31,6 @@
       pointer-events: auto;
     }
 
-    /* Igual ao index que funciona: 960x540 fixo, scale via JS */
     .slide iframe {
       position: absolute;
       top: 0;
@@ -40,6 +39,24 @@
       width: 960px;
       height: 540px;
       transform-origin: top left;
+    }
+
+    /* Badge com o nome da área — canto superior esquerdo */
+    #area-label {
+      position: fixed;
+      top: 14px;
+      left: 20px;
+      z-index: 9999;
+      background: rgba(255, 255, 255, 0.82);
+      color: #4a4a4a;
+      font-family: "Inter", system-ui, sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 5px 14px;
+      border-radius: 999px;
+      pointer-events: none;
+      backdrop-filter: blur(4px);
+      transition: opacity 0.4s;
     }
 
     #area-badge {
@@ -94,7 +111,8 @@
       src="https://izedashboardomissao.streamlit.app/~/+/?embed=true&area_filter=Servi%C3%A7o"
       loading="lazy"
     ></iframe>
-  </div>  
+  </div>
+
   <div class="slide" id="slide-2">
     <iframe
       id="frame-2"
@@ -102,6 +120,9 @@
       loading="lazy"
     ></iframe>
   </div>
+
+  <!-- Badge com nome da área atual -->
+  <div id="area-label">Produto</div>
 
   <div id="area-badge">
     <div class="dot on" id="dot-0"></div>
@@ -117,6 +138,8 @@
   var TOTAL      = 3;
   var DURACAO_MS = 90000;
   var FADE_MS    = 1200;
+
+  var AREAS = ['Produto', 'Serviço', 'Markup'];
 
   function ajustarScale() {
     var vw = window.innerWidth;
@@ -143,6 +166,10 @@
     }
   }
 
+  function atualizarAreaLabel(idx) {
+    document.getElementById('area-label').textContent = AREAS[idx];
+  }
+
   function iniciarProgressBar() {
     var bar = document.getElementById('progress-bar');
     bar.style.transition = 'none';
@@ -158,6 +185,7 @@
 
     document.getElementById('slide-' + cur).classList.add('active');
     atualizarDots(cur);
+    atualizarAreaLabel(cur);
 
     setTimeout(function() {
       document.getElementById('slide-' + anterior).classList.remove('active');
