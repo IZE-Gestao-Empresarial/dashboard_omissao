@@ -46,17 +46,19 @@
       position: fixed;
       top: 5.5%;
       left: 28%;
+      font-size: 21px;
+      padding: 8px 28px;
       z-index: 9999;
-      background: rgba(255, 255, 255, 0.82);
+      background: rgba(255, 255, 255, 0.88);
       color: #4a4a4a;
       font-family: "Inter", system-ui, sans-serif;
-      font-size: 13px;
-      font-weight: 500;
-      padding: 5px 14px;
+      font-weight: 700;
+      line-height: 1;
       border-radius: 999px;
       pointer-events: none;
       backdrop-filter: blur(4px);
       transition: opacity 0.4s;
+      white-space: nowrap;
     }
 
     #area-badge {
@@ -100,7 +102,7 @@
   <div class="slide active" id="slide-0">
     <iframe
       id="frame-0"
-      src="https://izedashboardomissao.streamlit.app/~/+/?embed=true&kiosk=1&downloads=0&area_filter=Produto"
+      src="https://izedashboardomissao.streamlit.app/~/+/?embed=true&kiosk=1&downloads=0&area_filter=Todos"
       loading="eager"
     ></iframe>
   </div>
@@ -108,7 +110,7 @@
   <div class="slide" id="slide-1">
     <iframe
       id="frame-1"
-      src="https://izedashboardomissao.streamlit.app/~/+/?embed=true&kiosk=1&downloads=0&area_filter=Servi%C3%A7o"
+      src="https://izedashboardomissao.streamlit.app/~/+/?embed=true&kiosk=1&downloads=0&area_filter=Produto"
       loading="lazy"
     ></iframe>
   </div>
@@ -116,18 +118,27 @@
   <div class="slide" id="slide-2">
     <iframe
       id="frame-2"
+      src="https://izedashboardomissao.streamlit.app/~/+/?embed=true&kiosk=1&downloads=0&area_filter=Servi%C3%A7o"
+      loading="lazy"
+    ></iframe>
+  </div>
+
+  <div class="slide" id="slide-3">
+    <iframe
+      id="frame-3"
       src="https://izedashboardomissao.streamlit.app/~/+/?embed=true&kiosk=1&downloads=0&area_filter=Markup"
       loading="lazy"
     ></iframe>
   </div>
 
   <!-- Badge com nome da área atual -->
-  <div id="area-label">Produto</div>
+  <div id="area-label">Todos</div>
 
   <div id="area-badge">
     <div class="dot on" id="dot-0"></div>
     <div class="dot"    id="dot-1"></div>
     <div class="dot"    id="dot-2"></div>
+    <div class="dot"    id="dot-3"></div>
   </div>
 
   <div id="progress-bar"></div>
@@ -135,11 +146,11 @@
 <script>
   var DASH_W     = 960;
   var DASH_H     = 540;
-  var TOTAL      = 3;
-  var DURACAO_MS = 90000;
+  var TOTAL      = 4;
+  var DURACAO_MS = 60000;
   var FADE_MS    = 1200;
 
-  var AREAS = ['Produto', 'Serviço', 'Markup'];
+  var AREAS = ['Todos', 'Produto', 'Serviço', 'Markup'];
 
   function ajustarScale() {
     var vw = window.innerWidth;
