@@ -19,6 +19,10 @@ Crie `.streamlit/secrets.toml` com:
 SHEETS_WEBAPP_URL = "https://script.google.com/macros/s/SEU_WEBAPP/exec"
 SHEETS_WEBAPP_TOKEN = "SEU_TOKEN"
 SHEETS_WEBAPP_SHEET = "INDICADORES_DASH_FICTICIO"
+
+# Necessário para os downloads de detalhamento
+DETAILS_WEBAPP_URL = "https://script.google.com/macros/s/SEU_WEBAPP_DETALHES/exec"
+DETAILS_WEBAPP_API_KEY = "SUA_API_KEY_DETALHES"
 ```
 
 ## Rodar localmente
@@ -53,4 +57,4 @@ Cada seção deve ter:
 
 
 ## Downloads nativos
-Os downloads detalhados usam `st.download_button` nativo do Streamlit com chamada ao Apps Script no clique.
+Os downloads detalhados usam `st.download_button` nativo do Streamlit. Como o Streamlit precisa receber os bytes antes de renderizar o botão, o app prepara os arquivos no carregamento da página. Se uma aba de detalhamento falhar, o botão correspondente é desabilitado e o erro completo fica nos logs.

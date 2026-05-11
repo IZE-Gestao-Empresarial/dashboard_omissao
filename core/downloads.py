@@ -4,12 +4,15 @@ from datetime import datetime
 from io import BytesIO
 from pathlib import Path
 from typing import Any, Dict, Sequence
+import logging
 import unicodedata
 
 import requests
 import streamlit as st
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Alignment, Font
+
+logger = logging.getLogger(__name__)
 
 
 _BASE_DIR = Path(__file__).resolve().parent.parent
@@ -48,7 +51,7 @@ _DOWNLOAD_SPECS = {
     "entrega_final": {
         "sheet_names": ["DETALHAMENTO_ENTREGAS", "DETALHAMENTO_ENTREGA"],
         "filename_prefix": "detalhamento_entregas",
-        "label": "Entregas Finais",
+        "label": "Entregas Tecnologia",
     },
 }
 
@@ -452,7 +455,22 @@ def _build_download_bytes(download_key: str, area: str | None = None) -> bytes:
                 return _fetch_xlsx_bytes_for_sheet(sheet_name, source=source, area=area)
             except Exception as exc:
                 last_error = exc
-        raise RuntimeError(str(last_error) if last_error else "Detalhamento indisponível.")
+                logger.warning(
+                    "Falha ao buscar aba de detalhamento. download_key=%s sheet_name=%s source=%s area=%s",
+                    download_key,
+                    sheet_name,
+                    source,
+                    area or "Todos",
+                    exc_info=True,
+                )
+
+        message = (
+            f"Detalhamento indisponível para download_key={download_key!r}, "
+            f"source={source!r}, area={area or 'Todos'!r}."
+        )
+        if last_error:
+            raise RuntimeError(f"{message} Último erro: {last_error}") from last_error
+        raise RuntimeError(message)
 
     sheets_data: list[tuple[str, list[dict[str, Any]]]] = []
 
@@ -466,9 +484,23 @@ def _build_download_bytes(download_key: str, area: str | None = None) -> bytes:
             break
         except Exception as exc:
             last_error = exc
+            logger.warning(
+                "Falha ao buscar aba principal de detalhamento. download_key=%s sheet_name=%s source=%s area=%s",
+                download_key,
+                sheet_name,
+                source,
+                area or "Todos",
+                exc_info=True,
+            )
 
     if primary_records is None:
-        raise RuntimeError(str(last_error) if last_error else "Detalhamento indisponível.")
+        message = (
+            f"Detalhamento indisponível para download_key={download_key!r}, "
+            f"source={source!r}, area={area or 'Todos'!r}."
+        )
+        if last_error:
+            raise RuntimeError(f"{message} Último erro: {last_error}") from last_error
+        raise RuntimeError(message)
 
     sheets_data.append((primary_sheet_name, primary_records))
 
@@ -483,6 +515,14 @@ def _build_download_bytes(download_key: str, area: str | None = None) -> bytes:
                 break
             except Exception as exc:
                 last_error = exc
+                logger.warning(
+                    "Falha ao buscar aba extra de detalhamento. download_key=%s sheet_name=%s source=%s area=%s",
+                    download_key,
+                    sheet_name,
+                    extra_source,
+                    area or "Todos",
+                    exc_info=True,
+                )
                 sheets_data.append((extra_sheet_name, []))
 
     return _records_to_xlsx_bytes_multi(sheets_data)

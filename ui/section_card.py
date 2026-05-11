@@ -663,8 +663,8 @@ def _render_entregas_finais_section(section: dict[str, Any], updated_at: str | N
     return f"""
     <section class="omission-section section--entregas-finais">
       <div class="section-header">
-        <div class="section-pill">Entregas Finais</div>
-        <button class="section-download" aria-label="Atualização Entregas Finais" title="Painel Entregas Finais" type="button">
+        <div class="section-pill">Entregas Tecnologia</div>
+        <button class="section-download" aria-label="Atualização Entregas Tecnologia" title="Painel Entregas Tecnologia" type="button">
           <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
             <path d="M12 4v9"></path>
             <path d="M8.5 10.5 12 14l3.5-3.5"></path>
