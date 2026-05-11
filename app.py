@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import streamlit as st
 import streamlit.components.v1 as components
 import urllib.parse
@@ -9,6 +10,8 @@ from core.data import fetch_dashboard_payload
 from core.downloads import get_download_bytes, get_download_spec
 from ui.render import inject_kiosk_css, render_dashboard
 from ui.section_card import omission_section_html
+
+logger = logging.getLogger(__name__)
 
 
 REFRESH_MS = 5 * 60 * 1000
@@ -42,6 +45,18 @@ def _get_secret(key: str, default: str = "") -> str:
     except Exception:
         return default
     return str(value).strip() if value is not None else default
+
+
+def _query_param_bool(key: str, default: bool = False) -> bool:
+    value = str(st.query_params.get(key, "")).strip().lower()
+    if not value:
+        return default
+    return value in {"1", "true", "sim", "yes", "on"}
+
+
+def _query_param_false(key: str) -> bool:
+    value = str(st.query_params.get(key, "")).strip().lower()
+    return value in {"0", "false", "nao", "não", "no", "off"}
 
 
 def inject_download_overlay_css() -> None:
@@ -256,20 +271,40 @@ def inject_download_overlay_css() -> None:
 
 def render_download_overlays(updated_at: str | None = None, area: str | None = None) -> None:
     overlay_order = ["base", "atualizacao", "rotina", "avancado", "entrega_final"]
+    area_key = str(area or "todos").strip().lower().replace(" ", "_")
 
     for key in overlay_order:
         spec = get_download_spec(key, updated_at=updated_at)
-        file_bytes = get_download_bytes(key, area=area)
+        download_disabled = False
+
+        try:
+            file_bytes = get_download_bytes(key, area=area)
+        except Exception as exc:
+            # Não deixe uma falha de detalhamento derrubar o dashboard inteiro.
+            # O erro completo fica nos logs do Streamlit Cloud.
+            logger.exception(
+                "Falha ao preparar download. key=%s area=%s",
+                key,
+                area or "Todos",
+            )
+            file_bytes = b""
+            download_disabled = True
+
         st.download_button(
             label=" ",
             data=file_bytes,
             file_name=spec["filename"],
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-            key=f"dl_{key}",
-            help=f"Baixar detalhamento {spec['label']}",
+            key=f"dl_{key}_{area_key}",
+            help=(
+                f"Baixar detalhamento {spec['label']}"
+                if not download_disabled
+                else f"Detalhamento {spec['label']} indisponível. Verifique os logs."
+            ),
             on_click="ignore",
             type="tertiary",
             width=56,
+            disabled=download_disabled,
         )
 
 
@@ -297,6 +332,8 @@ AREA_OPTIONS = ["Todos", "Produto", "Serviço", "Markup"]
 
 # Lê query param ?area_filter= enviado pelo tv_rotation.html
 _area_from_url = urllib.parse.unquote(str(st.query_params.get("area_filter", ""))).strip()
+is_kiosk_mode = _query_param_bool("kiosk") or _query_param_bool("tv")
+downloads_disabled_by_query = _query_param_false("downloads")
 _default_index = (
     AREA_OPTIONS.index(_area_from_url)
     if _area_from_url in AREA_OPTIONS
@@ -372,4 +409,9 @@ html = render_dashboard(
 )
 components.html(html, height=1, scrolling=False)
 
-render_download_overlays(updated_at=updated_at, area=selected_area)
+# No modo TV/kiosk os botões de download ficam ocultos no CSS,
+# mas o Python ainda executaria a preparação dos arquivos.
+# Como a TV usa 3 iframes e auto-refresh, isso gera chamadas desnecessárias
+# ao Apps Script/Excel e pode derrubar a sessão quando um detalhamento falha.
+if not is_kiosk_mode and not downloads_disabled_by_query:
+    render_download_overlays(updated_at=updated_at, area=selected_area)
