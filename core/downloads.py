@@ -440,6 +440,24 @@ def get_download_spec(download_key: str, updated_at: str | None = None) -> dict[
     }
 
 
+def _build_unavailable_download_bytes(download_key: str, error: Exception) -> bytes:
+    spec = _DOWNLOAD_SPECS.get(download_key, {})
+    label = str(spec.get("label") or download_key)
+
+    workbook = Workbook()
+    worksheet = workbook.active
+    worksheet.title = "Indisponivel"
+    worksheet["A1"] = "Detalhamento indisponível"
+    worksheet["A1"].font = Font(bold=True)
+    worksheet["A2"] = f"Não foi possível carregar o detalhamento de {label}."
+    worksheet["A3"] = str(error)
+    _autosize_columns(worksheet)
+
+    output = BytesIO()
+    workbook.save(output)
+    return output.getvalue()
+
+
 def _build_download_bytes(download_key: str, area: str | None = None) -> bytes:
     spec = _DOWNLOAD_SPECS[download_key]
     source = str(spec.get("source") or "details_api")
@@ -490,7 +508,10 @@ def _build_download_bytes(download_key: str, area: str | None = None) -> bytes:
 
 @st.cache_data(ttl=_CACHE_TTL_SECONDS, show_spinner=False)
 def get_download_bytes(download_key: str, area: str | None = None) -> bytes:
-    return _build_download_bytes(download_key, area=area)
+    try:
+        return _build_download_bytes(download_key, area=area)
+    except Exception as exc:
+        return _build_unavailable_download_bytes(download_key, exc)
 
 
 def make_download_callable(download_key: str):
