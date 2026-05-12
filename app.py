@@ -74,7 +74,7 @@ def inject_download_overlay_css() -> None:
 
           .st-key-area_filter label,
           .st-key-area_filter [data-testid="InputInstructions"],
-          .st-key-area_filter [data-baseweb="select"] > div:first-child > div:last-child svg {
+          .st-key-area_filter [data-baseweb="select"] > div:first-child > div:last-child {
             display: none !important;
           }
 
@@ -88,6 +88,9 @@ def inject_download_overlay_css() -> None:
             box-shadow: none !important;
             gap: 0.926vmin !important;
             cursor: pointer !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
           }
 
           .st-key-area_filter [data-baseweb="select"] > div:first-child:hover,
@@ -105,11 +108,20 @@ def inject_download_overlay_css() -> None:
             font-family: "Inter", system-ui, sans-serif !important;
             font-size: 2.96vmin !important;
             font-weight: 400 !important;
-            line-height: 1 !important;
+            line-height: 1.4 !important;
             letter-spacing: -0.01em !important;
             padding: 0 !important;
             white-space: nowrap !important;
-            transform: translateY(4.5px) !important;
+            transform: none !important;
+            text-align: center !important;
+          }
+
+          .st-key-area_filter [data-baseweb="select"] > div:first-child > div:first-child {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            height: 100% !important;
+            width: 100% !important;
           }
 
           .st-key-area_filter [data-baseweb="select"] svg {
@@ -338,6 +350,7 @@ slots = {
         cards.get("base", {}),
         section_class="section--base",
         updated_at=updated_at,
+        area=selected_area,
     ),
     "CARD_ATUALIZACAO": omission_section_html(
         cards.get("atualizacao", {}),

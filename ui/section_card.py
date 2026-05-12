@@ -3,6 +3,7 @@ from __future__ import annotations
 from html import escape
 from typing import Any
 import math
+import unicodedata
 
 
 PERCENT_LABELS = {
@@ -125,7 +126,12 @@ def _is_total_base_item(label: str) -> bool:
 
 
 
-def _render_base_section(section: dict[str, Any], updated_at: str | None = None) -> str:
+def _normalize_area_key(area: str | None) -> str:
+    normalized = unicodedata.normalize("NFKD", str(area or "").strip().upper())
+    return "".join(char for char in normalized if not unicodedata.combining(char))
+
+
+def _render_base_section(section: dict[str, Any], updated_at: str | None = None, area: str | None = None) -> str:
     items = section.get("itens") or []
 
     clientes_ativos = _find_item_by_predicate(items, lambda label: label == "CLIENTES ATIVOS")
@@ -135,7 +141,12 @@ def _render_base_section(section: dict[str, Any], updated_at: str | None = None)
     dre_item = _find_item_by_predicate(items, lambda label: label == "DRE" or " DRE" in label or label.startswith("DRE "))
     ind_item = _find_item_by_predicate(items, lambda label: label == "INDICADORES" or label == "IND" or "INDIC" in label)
 
-    metric_items = [fc_item, dre_item, ind_item]
+    hide_dre_content = _normalize_area_key(area) == "SERVICO"
+    metric_entries = [
+        (fc_item, "base-metric-card--fc", False),
+        (dre_item, "base-metric-card--dre", hide_dre_content),
+        (ind_item, "base-metric-card--ind", False),
+    ]
 
     active_value = escape(str(clientes_ativos.get("formattedValue") or clientes_ativos.get("valor") or "-")) if clientes_ativos else "-"
     total_base_value = _format_plain_number(_extract_numeric_value(total_base_clientes))
@@ -148,26 +159,14 @@ def _render_base_section(section: dict[str, Any], updated_at: str | None = None)
     cobertura_display = _format_percent_number(cobertura_value)
 
     cards_html = []
-    color_classes = ["base-metric-card--fc", "base-metric-card--dre", "base-metric-card--ind"]
-    for idx, item in enumerate(metric_items):
-        label = _normalize_base_label(str((item or {}).get("indicador") or "-"))
-        value = _format_metric_value(item or {}, include_suffix=True) if item else "-"
-        color_class = color_classes[idx] if idx < len(color_classes) else ""
+    for item, color_class, hide_content in metric_entries:
+        label = "DRE" if hide_content else _normalize_base_label(str((item or {}).get("indicador") or "-"))
+        value = "--" if hide_content else (_format_metric_value(item or {}, include_suffix=True) if item else "-")
         cards_html.append(
             f"""
             <article class="base-metric-card {color_class}">
               <div class="base-metric-value">{value}</div>
               <div class="base-metric-label">{escape(label)}</div>
-            </article>
-            """.strip()
-        )
-
-    while len(cards_html) < 3:
-        cards_html.append(
-            """
-            <article class="base-metric-card">
-              <div class="base-metric-value">-</div>
-              <div class="base-metric-label">-</div>
             </article>
             """.strip()
         )
@@ -691,9 +690,10 @@ def omission_section_html(
     section_class: str = "",
     header_align: str = "left",
     updated_at: str | None = None,
+    area: str | None = None,
 ) -> str:
     if section_class.strip() == "section--base":
-        return _render_base_section(section, updated_at=updated_at)
+        return _render_base_section(section, updated_at=updated_at, area=area)
 
     if section_class.strip() == "section--rotina":
         return _render_rotina_section(section, updated_at=updated_at)
