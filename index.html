@@ -114,7 +114,7 @@
     <iframe
       id="frame-1"
       src="https://izedashboardomissao.streamlit.app/~/+/?embed=true&kiosk=1&downloads=0&area_filter=Produto"
-      loading="lazy"
+      loading="eager"
     ></iframe>
   </div>
 
@@ -122,7 +122,7 @@
     <iframe
       id="frame-2"
       src="https://izedashboardomissao.streamlit.app/~/+/?embed=true&kiosk=1&downloads=0&area_filter=Servi%C3%A7o"
-      loading="lazy"
+      loading="eager"
     ></iframe>
   </div>
 
@@ -130,7 +130,7 @@
     <iframe
       id="frame-3"
       src="https://izedashboardomissao.streamlit.app/~/+/?embed=true&kiosk=1&downloads=0&area_filter=Markup"
-      loading="lazy"
+      loading="eager"
     ></iframe>
   </div>
 
@@ -203,17 +203,6 @@
 
     setTimeout(function() {
       document.getElementById('slide-' + anterior).classList.remove('active');
-    }, FADE_MS);
-
-    var proximo = (cur + 1) % TOTAL;
-    setTimeout(function() {
-      var nextFrame = document.getElementById('frame-' + proximo);
-      if (nextFrame && nextFrame.getAttribute('loading') === 'lazy') {
-        nextFrame.setAttribute('loading', 'eager');
-        var src = nextFrame.src;
-        nextFrame.src = '';
-        nextFrame.src = src;
-      }
     }, FADE_MS);
 
     iniciarProgressBar();
