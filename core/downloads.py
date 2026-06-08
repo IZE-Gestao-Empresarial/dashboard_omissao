@@ -17,6 +17,7 @@ from openpyxl.styles import Alignment, Font
 
 _BASE_DIR = Path(__file__).resolve().parent.parent
 _DEFAULT_LOCAL_WORKBOOK = _BASE_DIR / "data" / "abas_detalhamento_preenchida_ficticia.xlsx"
+_DEFAULT_DASHBOARD_SPREADSHEET_ID = "1XKzSX1-xspp8NAOF7WGli0dwJ2SRlOdfm0fxOCUDVHs"
 _DEFAULT_DETAILS_SPREADSHEET_ID = "1lOVjHVNgofpmJeEnt3zwsCWve5MJX5HO3PqbOAPmHf0"
 _DEFAULT_TIMEOUT = 30
 _CACHE_TTL_SECONDS = 300
@@ -26,11 +27,11 @@ _DOWNLOAD_SPECS = {
         "sheet_names": ["BASE_INDICADORES"],
         "filename_prefix": "base_indicadores",
         "label": "Base",
-        "source": "dashboard_api",
+        "source": "dashboard_direct_sheets",
         "extra_sheets": [
             {
                 "sheet_names": ["DETALHAMENTO_CANCELADOS"],
-                "source": "details_api",
+                "source": "direct_sheets",
             }
         ],
     },
@@ -38,21 +39,25 @@ _DOWNLOAD_SPECS = {
         "sheet_names": ["DETALHAMENTO_ATUALIZACAO"],
         "filename_prefix": "detalhamento_atualizacao",
         "label": "Atualização",
+        "source": "direct_sheets",
     },
     "rotina": {
         "sheet_names": ["DETALHAMENTO_CHURN"],
         "filename_prefix": "detalhamento_churn",
         "label": "Rotina",
+        "source": "direct_sheets",
     },
     "avancado": {
         "sheet_names": ["DETALHAMENTO_AVANCADO", "DETALHAMENTO_AVANÇADO"],
         "filename_prefix": "detalhamento_avancado",
         "label": "Avançado",
+        "source": "direct_sheets",
     },
     "entrega_final": {
         "sheet_names": ["DETALHAMENTO_ENTREGAS", "DETALHAMENTO_ENTREGA"],
         "filename_prefix": "detalhamento_entregas",
         "label": "Entregas Finais",
+        "source": "direct_sheets",
     },
     "produto": {
         "sheet_names": ["DETALHAMENTO_PRODUTO", "DETALHAMENTO_PRODUTOS"],
@@ -142,12 +147,18 @@ def _filter_and_normalize_base_records(records: Sequence[dict[str, Any]]) -> lis
     for record in records:
         status_key = next((key for key in record.keys() if _strip_accents(str(key)).strip().lower() == "status"), None)
         status_value = _normalize_string_flag(record.get(status_key)) if status_key else ""
-
-        if status_key and status_value != "Ativo":
-            continue
+        if status_value == "Ativo":
+            platform_value = "TEC"
+        elif not status_value:
+            platform_value = "MONDAY"
+        else:
+            platform_value = "Fora da Plataforma"
 
         normalized_record: dict[str, Any] = {}
         for key, value in record.items():
+            if key == status_key:
+                normalized_record["Plataforma"] = platform_value
+                continue
             if isinstance(value, str):
                 normalized_record[key] = _normalize_string_flag(value)
             else:
@@ -156,6 +167,24 @@ def _filter_and_normalize_base_records(records: Sequence[dict[str, Any]]) -> lis
         filtered_records.append(normalized_record)
 
     return filtered_records
+
+
+def _filter_records_by_area(records: Sequence[dict[str, Any]], area: str | None) -> list[dict[str, Any]]:
+    if not area:
+        return list(records)
+
+    area_norm = _strip_accents(area).strip().upper()
+    area_keys = ("Time", "TIME", "Área", "ÁREA", "Area", "AREA")
+    return [
+        record for record in records
+        if _strip_accents(str(next((record.get(key) for key in area_keys if key in record), ""))).strip().upper() == area_norm
+    ]
+
+
+def _postprocess_sheet_records(sheet_name: str, records: Sequence[dict[str, Any]]) -> list[dict[str, Any]]:
+    if sheet_name == "BASE_INDICADORES":
+        return _filter_and_normalize_base_records(records)
+    return list(records)
 
 
 def _normalize_filename_chunk(value: str | None) -> str:
@@ -432,6 +461,13 @@ def _fetch_xlsx_bytes_for_sheet(sheet_name: str, *, source: str = "details_api",
             ]
         return _records_to_xlsx_bytes(records, sheet_title=sheet_name)
 
+    if source == "dashboard_direct_sheets":
+        spreadsheet_id = _get_secret_str("DASHBOARD_SPREADSHEET_ID", _DEFAULT_DASHBOARD_SPREADSHEET_ID)
+        records = _fetch_direct_sheet_records(spreadsheet_id, sheet_name)
+        records = _filter_records_by_area(records, area)
+        records = _postprocess_sheet_records(sheet_name, records)
+        return _records_to_xlsx_bytes(records, sheet_title=sheet_name)
+
     if source == "dashboard_api":
         dashboard_url = _get_secret_str("SHEETS_WEBAPP_URL")
         dashboard_token = _get_secret_str("SHEETS_WEBAPP_TOKEN")
@@ -472,6 +508,12 @@ def _fetch_records_for_sheet(sheet_name: str, *, source: str = "details_api", ar
                 if _strip_accents(str(r.get("Time") or r.get("TIME") or r.get("Área") or r.get("AREA") or "")).strip().upper() == area_norm
             ]
         return records
+
+    if source == "dashboard_direct_sheets":
+        spreadsheet_id = _get_secret_str("DASHBOARD_SPREADSHEET_ID", _DEFAULT_DASHBOARD_SPREADSHEET_ID)
+        records = _fetch_direct_sheet_records(spreadsheet_id, sheet_name)
+        records = _filter_records_by_area(records, area)
+        return _postprocess_sheet_records(sheet_name, records)
 
     if source == "dashboard_api":
         dashboard_url = _get_secret_str("SHEETS_WEBAPP_URL")
