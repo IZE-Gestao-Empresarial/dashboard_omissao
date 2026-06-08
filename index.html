@@ -41,22 +41,25 @@
       transform-origin: top left;
     }
 
-    /* Badge com o nome da área — entre os pills Base e Atualização */
+    /* Espelha o seletor de area do dashboard Streamlit. */
     #area-label {
       position: fixed;
-      top: 5.5%;
-      left: 28%;
-      font-size: 21px;
-      padding: 8px 28px;
-      z-index: 9999;
-      background: rgba(255, 255, 255, 0.88);
+      left: calc((71 / 1920) * 100vw);
+      top: calc((42 / 1080) * 100vh);
+      height: calc((58 / 1080) * 100vh);
+      z-index: 1001;
+      background: transparent;
       color: #4a4a4a;
       font-family: "Inter", system-ui, sans-serif;
+      font-size: calc((34 / 1080) * 100vh);
       font-weight: 700;
-      line-height: 1;
-      border-radius: 999px;
+      line-height: 1.4;
+      letter-spacing: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
       pointer-events: none;
-      backdrop-filter: blur(4px);
       transition: opacity 0.4s;
       white-space: nowrap;
     }
@@ -131,8 +134,8 @@
     ></iframe>
   </div>
 
-  <!-- Badge com nome da área atual -->
-  <div id="area-label">Todos</div>
+  <!-- Seletor de area atual -->
+  <div id="area-label">GF&P - Geral</div>
 
   <div id="area-badge">
     <div class="dot on" id="dot-0"></div>
@@ -150,7 +153,7 @@
   var DURACAO_MS = 60000;
   var FADE_MS    = 1200;
 
-  var AREAS = ['Todos', 'Produto', 'Serviço', 'Markup'];
+  var AREAS = ['GF&P - Geral', 'Produto', 'Servi\u00e7o', 'Markup'];
 
   function ajustarScale() {
     var vw = window.innerWidth;

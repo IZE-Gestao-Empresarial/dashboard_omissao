@@ -17,7 +17,7 @@ from openpyxl.styles import Alignment, Font
 
 _BASE_DIR = Path(__file__).resolve().parent.parent
 _DEFAULT_LOCAL_WORKBOOK = _BASE_DIR / "data" / "abas_detalhamento_preenchida_ficticia.xlsx"
-_DEFAULT_DETAILS_SPREADSHEET_ID = "16qyoE5ugq4P3rAQuNAkbQNtUQ82e_CXWRBFT_BnWQh4"
+_DEFAULT_DETAILS_SPREADSHEET_ID = "1lOVjHVNgofpmJeEnt3zwsCWve5MJX5HO3PqbOAPmHf0"
 _DEFAULT_TIMEOUT = 30
 _CACHE_TTL_SECONDS = 300
 

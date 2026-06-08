@@ -58,6 +58,8 @@ def inject_download_overlay_css() -> None:
             --overlay-dl-atualizacao-x: 1110;
             --overlay-dl-rotina-x: 1392;
             --overlay-dl-produto-x: 256;
+            --overlay-dl-size: min(56px, calc((56 / var(--overlay-design-h)) * 100vh));
+            --overlay-dl-icon-size: calc((30 / var(--overlay-design-h)) * 100vh);
           }
 
           [data-testid="stAppViewContainer"] > .main {
@@ -182,16 +184,26 @@ def inject_download_overlay_css() -> None:
           .st-key-dl_rotina [data-testid="stDownloadButton"],
           .st-key-dl_produto [data-testid="stDownloadButton"] {
             margin: 0 !important;
+            width: var(--overlay-dl-size) !important;
+            min-width: var(--overlay-dl-size) !important;
+            max-width: var(--overlay-dl-size) !important;
+            height: var(--overlay-dl-size) !important;
+            min-height: var(--overlay-dl-size) !important;
+            max-height: var(--overlay-dl-size) !important;
+            display: block !important;
           }
 
           .st-key-dl_base [data-testid="stDownloadButton"] button,
           .st-key-dl_atualizacao [data-testid="stDownloadButton"] button,
           .st-key-dl_rotina [data-testid="stDownloadButton"] button,
           .st-key-dl_produto [data-testid="stDownloadButton"] button {
-            width: min(56px, calc((56 / var(--overlay-design-w)) * 100vw));
-            min-width: min(56px, calc((56 / var(--overlay-design-w)) * 100vw));
-            height: min(56px, calc((56 / var(--overlay-design-h)) * 100vh));
-            min-height: min(56px, calc((56 / var(--overlay-design-h)) * 100vh));
+            width: var(--overlay-dl-size) !important;
+            min-width: var(--overlay-dl-size) !important;
+            max-width: var(--overlay-dl-size) !important;
+            height: var(--overlay-dl-size) !important;
+            min-height: var(--overlay-dl-size) !important;
+            max-height: var(--overlay-dl-size) !important;
+            aspect-ratio: 1 / 1 !important;
             border-radius: 999px;
             border: none !important;
             background: var(--pill-bg, rgba(255,255,255,0.78)) !important;
@@ -205,6 +217,7 @@ def inject_download_overlay_css() -> None:
             align-items: center !important;
             justify-content: center !important;
             gap: 0 !important;
+            overflow: hidden !important;
           }
 
           .st-key-dl_base [data-testid="stDownloadButton"] button > div,
@@ -219,6 +232,8 @@ def inject_download_overlay_css() -> None:
             align-items: center !important;
             justify-content: center !important;
             margin: 0 !important;
+            padding: 0 !important;
+            text-align: center !important;
           }
 
           .st-key-dl_base [data-testid="stDownloadButton"] button > div,
@@ -229,6 +244,7 @@ def inject_download_overlay_css() -> None:
             height: 100% !important;
             transform: none !important;
             gap: 0 !important;
+            flex: 0 0 100% !important;
           }
 
           .st-key-dl_base [data-testid="stDownloadButton"] button:hover,
@@ -264,23 +280,35 @@ def inject_download_overlay_css() -> None:
           .st-key-dl_atualizacao [data-testid="stDownloadButton"] button svg,
           .st-key-dl_rotina [data-testid="stDownloadButton"] button svg,
           .st-key-dl_produto [data-testid="stDownloadButton"] button svg {
-            width: calc((30 / var(--overlay-design-h)) * 100vh) !important;
-            height: calc((30 / var(--overlay-design-h)) * 100vh) !important;
+            width: var(--overlay-dl-icon-size) !important;
+            height: var(--overlay-dl-icon-size) !important;
             stroke-width: 1.8 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            transform: none !important;
+            flex: 0 0 var(--overlay-dl-icon-size) !important;
           }
 
           .st-key-dl_base [data-testid="stIconMaterial"],
           .st-key-dl_atualizacao [data-testid="stIconMaterial"],
           .st-key-dl_rotina [data-testid="stIconMaterial"],
           .st-key-dl_produto [data-testid="stIconMaterial"] {
-            font-size: calc((30 / var(--overlay-design-h)) * 100vh) !important;
-            width: calc((30 / var(--overlay-design-h)) * 100vh) !important;
-            height: calc((30 / var(--overlay-design-h)) * 100vh) !important;
+            font-size: var(--overlay-dl-icon-size) !important;
+            width: var(--overlay-dl-icon-size) !important;
+            min-width: var(--overlay-dl-icon-size) !important;
+            max-width: var(--overlay-dl-icon-size) !important;
+            height: var(--overlay-dl-icon-size) !important;
+            min-height: var(--overlay-dl-icon-size) !important;
+            max-height: var(--overlay-dl-icon-size) !important;
             line-height: 1 !important;
             transform: none !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            text-align: center !important;
+            flex: 0 0 var(--overlay-dl-icon-size) !important;
           }
 
           @media (max-width: 960px) and (max-height: 540px) {
