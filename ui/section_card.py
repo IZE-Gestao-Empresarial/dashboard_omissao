@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 from html import escape
+from pathlib import Path
 from typing import Any
 import math
 import unicodedata
+
+
+_BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 PERCENT_LABELS = {
@@ -26,6 +30,14 @@ PERCENT_LABELS = {
     "DASHS ATUALIZADOS",
     "DASHS TRAVADOS POR PDC",
 }
+
+
+def _load_svg_icon(filename: str) -> str:
+    path = _BASE_DIR / "assets" / "svg" / filename
+    try:
+        return path.read_text(encoding="utf-8")
+    except Exception:
+        return ""
 
 
 def _badge_class(item: dict[str, Any]) -> str:
@@ -115,7 +127,7 @@ def _format_percent_number(value: float | None) -> str:
     if value is None:
         return "-"
 
-    text = f"{value:,.2f}%".replace(",", "_").replace(".", ",").replace("_", ".")
+    text = f"{int(round(value))}%"
     return escape(text)
 
 
@@ -188,6 +200,7 @@ def _render_base_section(section: dict[str, Any], updated_at: str | None = None,
       <div class="section-card base-section-card">
         <div class="section-card-content base-section-content">
           <div class="base-prototype-title">Coração da operação</div>
+          <div class="base-prototype-subtitle">Vis\u00e3o geral da base de clientes e cobertura de dados</div>
           <div class="base-prototype-topline">
             <div class="base-top-stat">
               <div class="base-top-stat-value">{total_base_value}</div>
@@ -195,11 +208,11 @@ def _render_base_section(section: dict[str, Any], updated_at: str | None = None,
             </div>
             <div class="base-top-stat">
               <div class="base-top-stat-value">{active_value}</div>
-              <div class="base-top-stat-label">Qnt. Clientes ativos</div>
+              <div class="base-top-stat-label">Clientes TEC</div>
             </div>
             <div class="base-top-stat">
               <div class="base-top-stat-value">{cobertura_display}</div>
-              <div class="base-top-stat-label">Ativos / Base</div>
+              <div class="base-top-stat-label">TEC / Base</div>
             </div>
           </div>
           <div class="base-prototype-metrics">
@@ -217,6 +230,24 @@ def _render_base_section(section: dict[str, Any], updated_at: str | None = None,
 
 def _normalize_lookup_label(label: str) -> str:
     return " ".join((label or "").strip().upper().replace("_", " ").replace("-", " - ").split())
+
+
+def _ascii_lookup_label(label: str) -> str:
+    normalized = unicodedata.normalize("NFKD", _normalize_lookup_label(label))
+    return "".join(char for char in normalized if not unicodedata.combining(char))
+
+
+def _find_item_by_terms(items: list[dict[str, Any]], *term_sets: tuple[str, ...]) -> dict[str, Any] | None:
+    normalized_term_sets = [
+        tuple(_ascii_lookup_label(term) for term in term_set)
+        for term_set in term_sets
+    ]
+
+    for item in items:
+        label = _ascii_lookup_label(str(item.get("indicador") or ""))
+        if any(all(term in label for term in term_set) for term_set in normalized_term_sets):
+            return item
+    return None
 
 
 
@@ -293,10 +324,12 @@ def _render_rotina_section(section: dict[str, Any], updated_at: str | None = Non
         <div class="section-card-content rotina-section-content">
           <div class="rotina-header">
             <div class="rotina-title">{title}</div>
+            <div class="rotina-subtitle">Sa\u00fade da comunica\u00e7\u00e3o por cliente</div>
             <div class="rotina-summary">
               <span class="rotina-summary-value">{grupos_ativos_valor}</span>
-              <span class="rotina-summary-label">Grupos wpp ativos</span>
+              <span class="rotina-summary-label">Clientes TEC</span>
             </div>
+            <div class="rotina-progress" aria-hidden="true"><span></span></div>
           </div>
           <div class="rotina-blocks-row">
             <div class="rotina-inativos-card">
@@ -401,6 +434,18 @@ def _is_percent_item(item: dict[str, Any] | None) -> bool:
     if label in PERCENT_LABELS:
         return True
 
+    ascii_label = _ascii_lookup_label(label)
+    product_percent_terms = (
+        ("RADAR", "ENVIADOS", "SEMANA"),
+        ("NAO", "ELEGIVEIS", "RADAR"),
+        ("RELATORIOS", "ENVIADOS", "MES"),
+        ("EXCECOES", "RELATORIOS"),
+        ("CLIENTES", "INTEGRADOS"),
+        ("DE", "PARA", "INCORRETOS"),
+    )
+    if any(all(term in ascii_label for term in terms) for terms in product_percent_terms):
+        return True
+
     formatted = str(item.get("formattedValue") or "").strip()
     return "%" in formatted
 
@@ -455,8 +500,7 @@ def _extract_percentage(item: dict[str, Any] | None) -> float:
         return 0.0
 
     raw_value = item.get("valor")
-    label = str(item.get("indicador") or "").strip().upper()
-    is_percent = bool(item.get("isPercent")) or label in PERCENT_LABELS
+    is_percent = _is_percent_item(item)
 
     if isinstance(raw_value, (int, float)):
         pct = float(raw_value) * 100.0 if is_percent and abs(float(raw_value)) <= 1 else float(raw_value)
@@ -551,6 +595,8 @@ def _render_atualizacao_gauge(item: dict[str, Any] | None, *, fallback_label: st
 
 def _render_atualizacao_section(section: dict[str, Any], updated_at: str | None = None) -> str:
     title = str(section.get("titulo") or "Atualização").strip() or "Atualização"
+    if _normalize_lookup_label(title) == "ATUALIZACAO":
+        title = "Atualização"
     items = section.get("itens") or []
 
     fc_item = _find_item_by_predicate(items, lambda label: label == "FC" or " FC" in label or label.startswith("FC "))
@@ -591,6 +637,94 @@ def _render_atualizacao_section(section: dict[str, Any], updated_at: str | None 
             {''.join(gauges_html)}
           </div>
         </div>
+      </div>
+    </section>
+    """.strip()
+
+
+def _render_produto_metric(item: dict[str, Any] | None, *, label: str, risk: bool = False, force_suffix: str = "") -> str:
+    value = _format_metric_value(item, include_suffix=True)
+    if force_suffix and value not in {"", "-"} and not value.endswith(force_suffix):
+        value = f"{value}{force_suffix}"
+    risk_class = " produto-metric--risk" if risk else ""
+    return f"""
+    <div class="produto-metric{risk_class}">
+      <div class="produto-metric-label">{escape(label)}</div>
+      <div class="produto-metric-value">{value}</div>
+    </div>
+    """.strip()
+
+
+def _render_produto_card(*, title: str, icon_filename: str, metrics_html: str) -> str:
+    icon = _load_svg_icon(icon_filename)
+    title_html = "<br>".join(escape(part) for part in title.split("\n"))
+    return f"""
+    <article class="produto-card">
+      <div class="produto-card-header">
+        <div class="produto-icon" aria-hidden="true">{icon}</div>
+        <div class="produto-title">{title_html}</div>
+      </div>
+      <div class="produto-metrics">
+        {metrics_html}
+      </div>
+    </article>
+    """.strip()
+
+
+def _render_produto_section(section: dict[str, Any], updated_at: str | None = None) -> str:
+    items = section.get("itens") or []
+
+    radar_enviados_semana = _find_item_by_terms(items, ("RADAR", "ENVIADOS", "SEMANA"))
+    nao_elegiveis_radar = _find_item_by_terms(items, ("NAO", "ELEGIVEIS", "RADAR"))
+    relatorios_enviados_mes = _find_item_by_terms(items, ("RELATORIOS", "ENVIADOS", "MES"))
+    excecoes_relatorios = _find_item_by_terms(items, ("EXCECOES", "RELATORIOS"))
+    acessos_plataforma = _find_item_by_terms(items, ("ACESSOS", "PLATAFORMA"))
+    sem_acesso_plataforma = _find_item_by_terms(items, ("SEM", "ACESSO", "PLATAFORMA"))
+    clientes_integrados = _find_item_by_terms(items, ("CLIENTES", "INTEGRADOS"))
+    de_para_incorretos = _find_item_by_terms(items, ("DE", "PARA", "INCORRETOS"))
+    erro_atualizacao_dash_hoje = _find_item_by_terms(
+        items,
+        ("ERRO", "ATUALIZACAO", "DASH", "HOJE"),
+        ("ERROS", "ATT", "HOJE"),
+    )
+
+    radar_html = "\n".join([
+        _render_produto_metric(radar_enviados_semana, label="Enviados na semana"),
+        _render_produto_metric(nao_elegiveis_radar, label="N\u00e3o Eleg\u00edveis", risk=True),
+    ])
+    relatorio_html = "\n".join([
+        _render_produto_metric(relatorios_enviados_mes, label="Enviados no m\u00eas"),
+        _render_produto_metric(excecoes_relatorios, label="Exce\u00e7\u00f5es", risk=True),
+    ])
+    plataforma_html = "\n".join([
+        _render_produto_metric(acessos_plataforma, label="N. Acessos (30 dias)"),
+        _render_produto_metric(sem_acesso_plataforma, label="Sem acesso (30 dias)", risk=True),
+    ])
+    qualidade_html = "\n".join([
+        _render_produto_metric(clientes_integrados, label="Clientes Integrados"),
+        _render_produto_metric(de_para_incorretos, label="De-Para incorretos", risk=True),
+        _render_produto_metric(erro_atualizacao_dash_hoje, label="Erros att. (Hoje)", risk=True, force_suffix="%"),
+    ])
+
+    footer = f'<div class="section-footer produto-section-footer">Ultima atualizacao geral: {escape(updated_at)}</div>' if updated_at else ""
+    radar_title = "Radar\nFinanceiro"
+    relatorio_title = "Relat\u00f3rio\nMensal"
+
+    return f"""
+    <section class="omission-section section--produto">
+      <div class="section-header">
+        <div class="section-pill">Produtos</div>
+      </div>
+      <div class="section-card produto-section-card">
+        <div class="section-card-content produto-section-content">
+          <div class="produto-grid">
+            {_render_produto_card(title=radar_title, icon_filename="icone_radar.svg", metrics_html=radar_html)}
+            {_render_produto_card(title=relatorio_title, icon_filename="icone_relatorio_mensal.svg", metrics_html=relatorio_html)}
+            {_render_produto_card(title="Plataforma", icon_filename="icone_plataforma.svg", metrics_html=plataforma_html)}
+            {_render_produto_card(title="Qualidade", icon_filename="icone_qualidade.svg", metrics_html=qualidade_html)}
+          </div>
+        </div>
+        {footer}
       </div>
     </section>
     """.strip()
@@ -706,6 +840,9 @@ def omission_section_html(
 
     if section_class.strip() == "section--entregas-finais":
         return _render_entregas_finais_section(section, updated_at=updated_at)
+
+    if section_class.strip() == "section--produto":
+        return _render_produto_section(section, updated_at=updated_at)
 
     title = str(section.get("titulo") or "Seção")
     items = section.get("itens") or []

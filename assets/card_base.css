@@ -5,20 +5,23 @@
 */
 
 .section--base {
-  --base-title-size: calc(45px * var(--dash-scale));
+  --base-title-size: calc(38px * var(--dash-scale));
   --base-title-offset-x: calc(6px * var(--dash-sx));
-  --base-title-offset-y: calc(14px * var(--dash-sy));
+  --base-title-offset-y: calc(-8px * var(--dash-sy));
+  --base-subtitle-size: calc(18px * var(--dash-scale));
+  --base-subtitle-offset-x: calc(8px * var(--dash-sx));
+  --base-subtitle-offset-y: calc(0px * var(--dash-sy));
 
-  --base-topline-offset-y: calc(-64px * var(--dash-sy));
+  --base-topline-offset-y: calc(-88px * var(--dash-sy));
   --base-topline-offset-x: calc(0px * var(--dash-sx));
   --base-top-text-offset-y: calc(-9px * var(--dash-sy));
   --base-top-stat-gap: calc(39px * var(--dash-sx));
   --base-top-stat-offset-x: calc(18px * var(--dash-sx));
-  --base-top-value-size: calc(40px * var(--dash-scale));
+  --base-top-value-size: calc(48px * var(--dash-scale));
   --base-top-label-size: calc(16px * var(--dash-scale));
-  --base-top-to-metrics-gap-y: calc(-61px * var(--dash-sy));
+  --base-top-to-metrics-gap-y: calc(-84px * var(--dash-sy));
 
-  --base-metric-card-height: calc(246px * var(--dash-sy));
+  --base-metric-card-height: calc(156px * var(--dash-sy));
   --base-metric-card-gap: calc(39px * var(--dash-sx));
   --base-metric-visual-gap-x: calc(18px * var(--dash-sx));
   --base-metric-card-pad-x: calc(12px * var(--dash-sx));
@@ -47,6 +50,16 @@
   letter-spacing: -0.04em;
   flex: 0 0 auto;
   transform: translateX(var(--base-title-offset-x)) translateY(var(--base-title-offset-y));
+}
+
+.section--base .base-prototype-subtitle {
+  color: #3a3a3a;
+  font-size: var(--base-subtitle-size);
+  line-height: 1.16;
+  font-weight: 400;
+  letter-spacing: 0;
+  flex: 0 0 auto;
+  transform: translateX(var(--base-subtitle-offset-x)) translateY(var(--base-subtitle-offset-y));
 }
 
 .section--base .base-prototype-topline {
@@ -111,6 +124,10 @@
   padding-left: calc(14px * var(--dash-sx));
   padding-right: calc(14px * var(--dash-sx));
   flex: 0 0 auto;
+}
+
+.section--base .base-top-stat:nth-child(3) .base-top-stat-value {
+  color: #194234;
 }
 
 .section--base .base-metric-card {

@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 from datetime import datetime
+from csv import DictReader
 from io import BytesIO
+from io import StringIO
 from pathlib import Path
 from typing import Any, Dict, Sequence
 import unicodedata
+from urllib.parse import quote, urlencode
 
 import requests
 import streamlit as st
@@ -14,6 +17,7 @@ from openpyxl.styles import Alignment, Font
 
 _BASE_DIR = Path(__file__).resolve().parent.parent
 _DEFAULT_LOCAL_WORKBOOK = _BASE_DIR / "data" / "abas_detalhamento_preenchida_ficticia.xlsx"
+_DEFAULT_DETAILS_SPREADSHEET_ID = "16qyoE5ugq4P3rAQuNAkbQNtUQ82e_CXWRBFT_BnWQh4"
 _DEFAULT_TIMEOUT = 30
 _CACHE_TTL_SECONDS = 300
 
@@ -49,6 +53,12 @@ _DOWNLOAD_SPECS = {
         "sheet_names": ["DETALHAMENTO_ENTREGAS", "DETALHAMENTO_ENTREGA"],
         "filename_prefix": "detalhamento_entregas",
         "label": "Entregas Finais",
+    },
+    "produto": {
+        "sheet_names": ["DETALHAMENTO_PRODUTO", "DETALHAMENTO_PRODUTOS"],
+        "filename_prefix": "detalhamento_produto",
+        "label": "Produto",
+        "source": "direct_sheets",
     },
 }
 
@@ -162,6 +172,55 @@ def _normalize_filename_chunk(value: str | None) -> str:
             cleaned.append("_")
     normalized = "".join(cleaned).strip("_")
     return normalized or datetime.now().strftime("%Y-%m-%d_%H-%M")
+
+
+def _sheet_csv_url(spreadsheet_id: str, sheet_name: str) -> str:
+    return f"https://docs.google.com/spreadsheets/d/{spreadsheet_id}/gviz/tq?tqx=out:csv&sheet={quote(sheet_name)}"
+
+
+def _sheet_values_api_url(spreadsheet_id: str, sheet_name: str, api_key: str) -> str:
+    range_name = f"'{sheet_name}'"
+    params = urlencode(
+        {
+            "key": api_key,
+            "majorDimension": "ROWS",
+            "valueRenderOption": "UNFORMATTED_VALUE",
+            "dateTimeRenderOption": "FORMATTED_STRING",
+        }
+    )
+    return f"https://sheets.googleapis.com/v4/spreadsheets/{spreadsheet_id}/values/{quote(range_name, safe='')}?{params}"
+
+
+def _records_from_values(values: list[list[Any]]) -> list[dict[str, Any]]:
+    if not values:
+        return []
+
+    headers = [str(value).strip() for value in values[0]]
+    records: list[dict[str, Any]] = []
+    for value_row in values[1:]:
+        record = {
+            headers[index]: value_row[index] if index < len(value_row) else ""
+            for index in range(len(headers))
+            if headers[index]
+        }
+        if any(str(value).strip() for value in record.values()):
+            records.append(record)
+    return records
+
+
+@st.cache_data(ttl=_CACHE_TTL_SECONDS, show_spinner=False)
+def _fetch_direct_sheet_records(spreadsheet_id: str, sheet_name: str) -> list[dict[str, Any]]:
+    api_key = _get_secret_str("GOOGLE_SHEETS_API_KEY")
+    if api_key:
+        response = requests.get(_sheet_values_api_url(spreadsheet_id, sheet_name, api_key), timeout=_DEFAULT_TIMEOUT)
+        response.raise_for_status()
+        values = response.json().get("values")
+        return _records_from_values(values if isinstance(values, list) else [])
+
+    response = requests.get(_sheet_csv_url(spreadsheet_id, sheet_name), timeout=_DEFAULT_TIMEOUT)
+    response.raise_for_status()
+    text = response.text.lstrip("\ufeff")
+    return [dict(row) for row in DictReader(StringIO(text))]
 
 
 @st.cache_data(ttl=_CACHE_TTL_SECONDS, show_spinner=False)
@@ -362,6 +421,17 @@ def _copy_sheet_only(source_bytes: bytes, sheet_name: str) -> bytes:
 
 # FIX: area adicionado e propagado para as funções de fetch
 def _fetch_xlsx_bytes_for_sheet(sheet_name: str, *, source: str = "details_api", area: str | None = None) -> bytes:
+    if source == "direct_sheets":
+        spreadsheet_id = _get_secret_str("DETAILS_SPREADSHEET_ID", _DEFAULT_DETAILS_SPREADSHEET_ID)
+        records = _fetch_direct_sheet_records(spreadsheet_id, sheet_name)
+        if area:
+            area_norm = _strip_accents(area).strip().upper()
+            records = [
+                r for r in records
+                if _strip_accents(str(r.get("Time") or r.get("TIME") or r.get("Área") or r.get("AREA") or "")).strip().upper() == area_norm
+            ]
+        return _records_to_xlsx_bytes(records, sheet_title=sheet_name)
+
     if source == "dashboard_api":
         dashboard_url = _get_secret_str("SHEETS_WEBAPP_URL")
         dashboard_token = _get_secret_str("SHEETS_WEBAPP_TOKEN")
@@ -392,6 +462,17 @@ def _fetch_xlsx_bytes_for_sheet(sheet_name: str, *, source: str = "details_api",
 
 
 def _fetch_records_for_sheet(sheet_name: str, *, source: str = "details_api", area: str | None = None) -> list[dict[str, Any]]:
+    if source == "direct_sheets":
+        spreadsheet_id = _get_secret_str("DETAILS_SPREADSHEET_ID", _DEFAULT_DETAILS_SPREADSHEET_ID)
+        records = _fetch_direct_sheet_records(spreadsheet_id, sheet_name)
+        if area:
+            area_norm = _strip_accents(area).strip().upper()
+            records = [
+                r for r in records
+                if _strip_accents(str(r.get("Time") or r.get("TIME") or r.get("Área") or r.get("AREA") or "")).strip().upper() == area_norm
+            ]
+        return records
+
     if source == "dashboard_api":
         dashboard_url = _get_secret_str("SHEETS_WEBAPP_URL")
         dashboard_token = _get_secret_str("SHEETS_WEBAPP_TOKEN")

@@ -13,6 +13,8 @@ from ui.section_card import omission_section_html
 
 REFRESH_MS = 5 * 60 * 1000
 DEFAULT_SHEET = "INDICADORES_DASH_FICTICIO"
+DEFAULT_AREA_SHEET = "INDICADORES_DASH_FICTICIO_AREA"
+DEFAULT_DASHBOARD_SPREADSHEET_ID = "1dBo7PKwJfpsujZl339rV-sks3jlu8AKbNROKSMZT210"
 
 
 def hide_streamlit_chrome() -> None:
@@ -29,7 +31,6 @@ def hide_streamlit_chrome() -> None:
           .block-container { padding-top: 0rem !important; padding-bottom: 0rem !important; }
           [data-testid="stAppViewContainer"] { padding-top: 0rem !important; }
           a[href*="streamlit.io"] { display: none !important; }
-          iframe[title="streamlit"] { display: none !important; }
         </style>
         """,
         unsafe_allow_html=True,
@@ -53,11 +54,10 @@ def inject_download_overlay_css() -> None:
             --overlay-design-h: 1080;
 
             /* Variáveis para ajustar apenas a posição X de cada botão do Streamlit */
-            --overlay-dl-base-x: 169;
-            --overlay-dl-atualizacao-x: 1036;
-            --overlay-dl-rotina-x: 1265;
-            --overlay-dl-avancado-x: 246;
-            --overlay-dl-entrega-final-x: 1130;
+            --overlay-dl-base-x: 223;
+            --overlay-dl-atualizacao-x: 1110;
+            --overlay-dl-rotina-x: 1392;
+            --overlay-dl-produto-x: 256;
           }
 
           [data-testid="stAppViewContainer"] > .main {
@@ -66,8 +66,8 @@ def inject_download_overlay_css() -> None:
 
           .st-key-area_filter {
             position: fixed;
-            left: calc((420 / 1920) * 100vw);
-            top: calc((68 / 1080) * 100vh);
+            left: calc((71 / 1920) * 100vw);
+            top: calc((42 / 1080) * 100vh);
             width: auto;
             z-index: 1001;
           }
@@ -79,18 +79,18 @@ def inject_download_overlay_css() -> None:
           }
 
           .st-key-area_filter [data-baseweb="select"] > div:first-child {
-            background: var(--pill-bg, rgba(255,255,255,0.78)) !important;
+            background: transparent !important;
             border: none !important;
             border-radius: 999px !important;
-            height: 5.185vmin !important;
+            height: calc((58 / 1080) * 100vh) !important;
             min-height: unset !important;
-            padding: 0 6vmin !important;
+            padding: 0 calc((48 / 1920) * 100vw) 0 0 !important;
             box-shadow: none !important;
             gap: 0.926vmin !important;
             cursor: pointer !important;
             display: flex !important;
             align-items: center !important;
-            justify-content: center !important;
+            justify-content: flex-start !important;
           }
 
           .st-key-area_filter [data-baseweb="select"] > div:first-child:hover,
@@ -106,29 +106,26 @@ def inject_download_overlay_css() -> None:
           .st-key-area_filter [data-baseweb="select"] > div:first-child > div:first-child * {
             color: #4a4a4a !important;
             font-family: "Inter", system-ui, sans-serif !important;
-            font-size: 2.96vmin !important;
-            font-weight: 400 !important;
+            font-size: calc((34 / 1080) * 100vh) !important;
+            font-weight: 700 !important;
             line-height: 1.4 !important;
-            letter-spacing: -0.01em !important;
+            letter-spacing: 0 !important;
             padding: 0 !important;
             white-space: nowrap !important;
             transform: none !important;
-            text-align: center !important;
+            text-align: left !important;
           }
 
           .st-key-area_filter [data-baseweb="select"] > div:first-child > div:first-child {
             display: flex !important;
             align-items: center !important;
-            justify-content: center !important;
+            justify-content: flex-start !important;
             height: 100% !important;
             width: 100% !important;
           }
 
           .st-key-area_filter [data-baseweb="select"] svg {
-            color: #6d6d6d !important;
-            width: calc((22 / 1080) * 100vh) !important;
-            height: calc((22 / 1080) * 100vh) !important;
-            flex-shrink: 0 !important;
+            display: none !important;
           }
 
           .st-key-area_filter [data-baseweb="popover"] [data-baseweb="menu"] {
@@ -155,76 +152,94 @@ def inject_download_overlay_css() -> None:
           .st-key-dl_base,
           .st-key-dl_atualizacao,
           .st-key-dl_rotina,
-          .st-key-dl_avancado,
-          .st-key-dl_entrega_final {
+          .st-key-dl_produto {
             position: fixed;
-            z-index: 1000;
+            z-index: 2147483000 !important;
           }
 
           .st-key-dl_base {
             left: calc((var(--overlay-dl-base-x) / var(--overlay-design-w)) * 100vw);
-            top: calc((68 / var(--overlay-design-h)) * 100vh);
+            top: calc((122 / var(--overlay-design-h)) * 100vh);
           }
 
           .st-key-dl_atualizacao {
             left: calc((var(--overlay-dl-atualizacao-x) / var(--overlay-design-w)) * 100vw);
-            top: calc((164 / var(--overlay-design-h)) * 100vh);
+            top: calc((122 / var(--overlay-design-h)) * 100vh);
           }
 
           .st-key-dl_rotina {
             left: calc((var(--overlay-dl-rotina-x) / var(--overlay-design-w)) * 100vw);
-            top: calc((68 / var(--overlay-design-h)) * 100vh);
+            top: calc((122 / var(--overlay-design-h)) * 100vh);
           }
 
-          .st-key-dl_avancado {
-            left: calc((var(--overlay-dl-avancado-x) / var(--overlay-design-w)) * 100vw);
-            top: calc((674 / var(--overlay-design-h)) * 100vh);
-          }
-
-          .st-key-dl_entrega_final {
-            left: calc((var(--overlay-dl-entrega-final-x) / var(--overlay-design-w)) * 100vw);
-            top: calc((674 / var(--overlay-design-h)) * 100vh);
+          .st-key-dl_produto {
+            left: calc((var(--overlay-dl-produto-x) / var(--overlay-design-w)) * 100vw);
+            top: calc((639 / var(--overlay-design-h)) * 100vh);
           }
 
           .st-key-dl_base [data-testid="stDownloadButton"],
           .st-key-dl_atualizacao [data-testid="stDownloadButton"],
           .st-key-dl_rotina [data-testid="stDownloadButton"],
-          .st-key-dl_avancado [data-testid="stDownloadButton"],
-          .st-key-dl_entrega_final [data-testid="stDownloadButton"] {
+          .st-key-dl_produto [data-testid="stDownloadButton"] {
             margin: 0 !important;
           }
 
           .st-key-dl_base [data-testid="stDownloadButton"] button,
           .st-key-dl_atualizacao [data-testid="stDownloadButton"] button,
           .st-key-dl_rotina [data-testid="stDownloadButton"] button,
-          .st-key-dl_avancado [data-testid="stDownloadButton"] button,
-          .st-key-dl_entrega_final [data-testid="stDownloadButton"] button {
+          .st-key-dl_produto [data-testid="stDownloadButton"] button {
             width: min(56px, calc((56 / var(--overlay-design-w)) * 100vw));
             min-width: min(56px, calc((56 / var(--overlay-design-w)) * 100vw));
             height: min(56px, calc((56 / var(--overlay-design-h)) * 100vh));
             min-height: min(56px, calc((56 / var(--overlay-design-h)) * 100vh));
             border-radius: 999px;
             border: none !important;
-            background: transparent !important;
-            color: transparent !important;
+            background: var(--pill-bg, rgba(255,255,255,0.78)) !important;
+            color: #6d6d6d !important;
             box-shadow: none !important;
             padding: 0 !important;
-            font-size: 1px !important;
+            font-size: 0 !important;
             line-height: 1 !important;
             outline: none !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 0 !important;
+          }
+
+          .st-key-dl_base [data-testid="stDownloadButton"] button > div,
+          .st-key-dl_atualizacao [data-testid="stDownloadButton"] button > div,
+          .st-key-dl_rotina [data-testid="stDownloadButton"] button > div,
+          .st-key-dl_produto [data-testid="stDownloadButton"] button > div,
+          .st-key-dl_base [data-testid="stDownloadButton"] button span,
+          .st-key-dl_atualizacao [data-testid="stDownloadButton"] button span,
+          .st-key-dl_rotina [data-testid="stDownloadButton"] button span,
+          .st-key-dl_produto [data-testid="stDownloadButton"] button span {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            margin: 0 !important;
+          }
+
+          .st-key-dl_base [data-testid="stDownloadButton"] button > div,
+          .st-key-dl_atualizacao [data-testid="stDownloadButton"] button > div,
+          .st-key-dl_rotina [data-testid="stDownloadButton"] button > div,
+          .st-key-dl_produto [data-testid="stDownloadButton"] button > div {
+            width: 100% !important;
+            height: 100% !important;
+            transform: none !important;
+            gap: 0 !important;
           }
 
           .st-key-dl_base [data-testid="stDownloadButton"] button:hover,
           .st-key-dl_atualizacao [data-testid="stDownloadButton"] button:hover,
           .st-key-dl_rotina [data-testid="stDownloadButton"] button:hover,
-          .st-key-dl_avancado [data-testid="stDownloadButton"] button:hover,
-          .st-key-dl_entrega_final [data-testid="stDownloadButton"] button:hover,
+          .st-key-dl_produto [data-testid="stDownloadButton"] button:hover,
           .st-key-dl_base [data-testid="stDownloadButton"] button:active,
           .st-key-dl_atualizacao [data-testid="stDownloadButton"] button:active,
           .st-key-dl_rotina [data-testid="stDownloadButton"] button:active,
-          .st-key-dl_avancado [data-testid="stDownloadButton"] button:active,
-          .st-key-dl_entrega_final [data-testid="stDownloadButton"] button:active {
-            background: transparent !important;
+          .st-key-dl_produto [data-testid="stDownloadButton"] button:active {
+            background: rgba(255,255,255,0.9) !important;
             box-shadow: none !important;
             border: none !important;
           }
@@ -232,15 +247,40 @@ def inject_download_overlay_css() -> None:
           .st-key-dl_base [data-testid="stDownloadButton"] button p,
           .st-key-dl_atualizacao [data-testid="stDownloadButton"] button p,
           .st-key-dl_rotina [data-testid="stDownloadButton"] button p,
-          .st-key-dl_avancado [data-testid="stDownloadButton"] button p,
-          .st-key-dl_entrega_final [data-testid="stDownloadButton"] button p,
+          .st-key-dl_produto [data-testid="stDownloadButton"] button p {
+            display: none !important;
+          }
+
           .st-key-dl_base [data-testid="stDownloadButton"] button svg,
           .st-key-dl_atualizacao [data-testid="stDownloadButton"] button svg,
           .st-key-dl_rotina [data-testid="stDownloadButton"] button svg,
-          .st-key-dl_avancado [data-testid="stDownloadButton"] button svg,
-          .st-key-dl_entrega_final [data-testid="stDownloadButton"] button svg {
-            opacity: 0 !important;
-            color: transparent !important;
+          .st-key-dl_produto [data-testid="stDownloadButton"] button svg {
+            opacity: 1 !important;
+            color: #6d6d6d !important;
+            fill: none !important;
+          }
+
+          .st-key-dl_base [data-testid="stDownloadButton"] button svg,
+          .st-key-dl_atualizacao [data-testid="stDownloadButton"] button svg,
+          .st-key-dl_rotina [data-testid="stDownloadButton"] button svg,
+          .st-key-dl_produto [data-testid="stDownloadButton"] button svg {
+            width: calc((30 / var(--overlay-design-h)) * 100vh) !important;
+            height: calc((30 / var(--overlay-design-h)) * 100vh) !important;
+            stroke-width: 1.8 !important;
+          }
+
+          .st-key-dl_base [data-testid="stIconMaterial"],
+          .st-key-dl_atualizacao [data-testid="stIconMaterial"],
+          .st-key-dl_rotina [data-testid="stIconMaterial"],
+          .st-key-dl_produto [data-testid="stIconMaterial"] {
+            font-size: calc((30 / var(--overlay-design-h)) * 100vh) !important;
+            width: calc((30 / var(--overlay-design-h)) * 100vh) !important;
+            height: calc((30 / var(--overlay-design-h)) * 100vh) !important;
+            line-height: 1 !important;
+            transform: none !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
           }
 
           @media (max-width: 960px) and (max-height: 540px) {
@@ -253,8 +293,7 @@ def inject_download_overlay_css() -> None:
             .st-key-dl_base,
             .st-key-dl_atualizacao,
             .st-key-dl_rotina,
-            .st-key-dl_avancado,
-            .st-key-dl_entrega_final {
+            .st-key-dl_produto {
               display: none !important;
               visibility: hidden !important;
               pointer-events: none !important;
@@ -267,20 +306,20 @@ def inject_download_overlay_css() -> None:
 
 
 def render_download_overlays(updated_at: str | None = None, area: str | None = None) -> None:
-    overlay_order = ["base", "atualizacao", "rotina", "avancado", "entrega_final"]
+    overlay_order = ["base", "atualizacao", "rotina", "produto"]
 
     for key in overlay_order:
         spec = get_download_spec(key, updated_at=updated_at)
-        file_bytes = get_download_bytes(key, area=area)
         st.download_button(
-            label=" ",
-            data=file_bytes,
+            label="Baixar",
+            data=lambda download_key=key, selected_area=area: get_download_bytes(download_key, area=selected_area),
             file_name=spec["filename"],
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             key=f"dl_{key}",
             help=f"Baixar detalhamento {spec['label']}",
             on_click="ignore",
             type="tertiary",
+            icon=":material/download:",
             width=56,
         )
 
@@ -292,20 +331,15 @@ inject_kiosk_css()
 inject_download_overlay_css()
 st_autorefresh(interval=REFRESH_MS, key="dashboard-omissao-refresh")
 
-url = _get_secret("SHEETS_WEBAPP_URL")
-token = _get_secret("SHEETS_WEBAPP_TOKEN")
+dashboard_spreadsheet_id = _get_secret("DASHBOARD_SPREADSHEET_ID", DEFAULT_DASHBOARD_SPREADSHEET_ID)
 sheet_name = _get_secret("SHEETS_WEBAPP_SHEET", DEFAULT_SHEET)
-
-if not url or not token:
-    st.error(
-        "Configure SHEETS_WEBAPP_URL e SHEETS_WEBAPP_TOKEN no .streamlit/secrets.toml para carregar o DashboardOmissao."
-    )
-    st.stop()
+area_sheet_name = _get_secret("SHEETS_WEBAPP_AREA_SHEET", DEFAULT_AREA_SHEET)
 
 if "selected_area" not in st.session_state:
     st.session_state.selected_area = None
 
 AREA_OPTIONS = ["Todos", "Produto", "Serviço", "Markup"]
+AREA_LABELS = {"Todos": "GF&P - Geral"}
 
 # Lê query param ?area_filter= enviado pelo tv_rotation.html
 _area_from_url = urllib.parse.unquote(str(st.query_params.get("area_filter", ""))).strip()
@@ -318,6 +352,7 @@ _default_index = (
 st.selectbox(
     label="Filtrar por Área",
     options=AREA_OPTIONS,
+    format_func=lambda option: AREA_LABELS.get(option, option),
     index=_default_index,
     key="area_filter",
     label_visibility="collapsed",
@@ -325,8 +360,9 @@ st.selectbox(
 
 area_filter_value = st.session_state.get("area_filter", "Todos")
 selected_area = None if area_filter_value == "Todos" else area_filter_value
+selected_sheet = area_sheet_name if selected_area else sheet_name
 
-payload = fetch_dashboard_payload(url=url, token=token, sheet=sheet_name, area=selected_area)
+payload = fetch_dashboard_payload(sheet=selected_sheet, area=selected_area, spreadsheet_id=dashboard_spreadsheet_id)
 
 print("DEBUG area:", selected_area)
 print("DEBUG sheet:", payload.get("sheet"))
@@ -342,7 +378,7 @@ if not payload.get("ok"):
 
 cards = payload.get("cards", {})
 updated_at = payload.get("updatedAt")
-source_sheet = payload.get("sheet") or sheet_name
+source_sheet = payload.get("sheet") or selected_sheet
 spreadsheet_name = payload.get("spreadsheetName") or "DashboardOmissao"
 
 slots = {
@@ -363,14 +399,9 @@ slots = {
         section_class="section--rotina",
         updated_at=updated_at,
     ),
-    "CARD_AVANCADO": omission_section_html(
-        cards.get("avancado", {}),
-        section_class="section--avancado",
-        updated_at=updated_at,
-    ),
-    "CARD_ENTREGAS_FINAIS": omission_section_html(
-        cards.get("entrega_final", {}),
-        section_class="section--entregas-finais",
+    "CARD_PRODUTO": omission_section_html(
+        cards.get("produto", {}),
+        section_class="section--produto",
         updated_at=updated_at,
     ),
 }

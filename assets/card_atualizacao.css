@@ -10,21 +10,24 @@
 */
 
 .section--atualizacao {
-  --atualizacao-scale-all: 1.02;
-  --atualizacao-gauge-svg-scale: 1.28;
+  --atualizacao-scale-all: 1;
+  --atualizacao-gauge-svg-scale: 1.25;
 }
 
 .section--atualizacao .section-header {
+  justify-content: flex-start;
   margin-bottom: calc(22px * var(--dash-sy) * var(--atualizacao-scale-all));
 }
 
 .section--atualizacao .section-pill {
-  min-width: calc(214px * var(--dash-sx) * var(--atualizacao-scale-all));
+  min-width: unset;
+  padding-left: calc(24px * var(--dash-sx));
+  padding-right: calc(24px * var(--dash-sx));
 }
 
 .section--atualizacao .atualizacao-section-card {
   position: relative;
-  background: #cdcdcd;
+  background: #ffffff;
   border-radius: calc(34px * var(--dash-scale) * var(--atualizacao-scale-all));
   box-shadow: none;
   overflow: hidden;
@@ -49,7 +52,7 @@
 }
 
 .section--atualizacao .atualizacao-section-content {
-  padding: calc(20px * var(--dash-sy) * var(--atualizacao-scale-all)) calc(10px * var(--dash-sx) * var(--atualizacao-scale-all)) calc(18px * var(--dash-sy) * var(--atualizacao-scale-all));
+  padding: calc(12px * var(--dash-sy) * var(--atualizacao-scale-all)) calc(10px * var(--dash-sx) * var(--atualizacao-scale-all)) calc(12px * var(--dash-sy) * var(--atualizacao-scale-all));
   justify-content: center;
 }
 
@@ -59,8 +62,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: calc(12px * var(--dash-sy) * var(--atualizacao-scale-all));
+  justify-content: space-around;
+  gap: 0;
 }
 
 .section--atualizacao .atualizacao-gauge {
@@ -72,8 +75,8 @@
 
 .section--atualizacao .atualizacao-gauge-shell {
   position: relative;
-  width: calc(170px * var(--dash-scale) * var(--atualizacao-scale-all));
-  height: calc(170px * var(--dash-scale) * var(--atualizacao-scale-all));
+  width: calc(142px * var(--dash-scale) * var(--atualizacao-scale-all));
+  height: calc(142px * var(--dash-scale) * var(--atualizacao-scale-all));
   display: grid;
   place-items: center;
   overflow: visible;

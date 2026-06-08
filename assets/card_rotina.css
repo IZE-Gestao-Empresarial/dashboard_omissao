@@ -3,80 +3,112 @@
   box-shadow: none;
 }
 
+.section--rotina .section-pill {
+  padding-left: calc(24px * var(--dash-sx));
+  padding-right: calc(24px * var(--dash-sx));
+}
+
 .section--rotina .rotina-section-content {
   height: 100%;
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   justify-content: flex-start;
-  gap: calc(80px * var(--dash-sy));
-  padding: calc(29px * var(--dash-sy)) calc(35px * var(--dash-sx)) calc(20px * var(--dash-sy)) calc(35px * var(--dash-sx));
+  gap: 0;
+  padding: calc(22px * var(--dash-sy)) calc(52px * var(--dash-sx)) calc(22px * var(--dash-sy)) calc(52px * var(--dash-sx));
   overflow: hidden;
 }
 
 .section--rotina .rotina-header {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: start;
-  column-gap: calc(16px * var(--dash-sx));
-  margin-bottom: calc(8px * var(--dash-sy));
+  display: block;
+  min-width: 0;
 }
 
 .section--rotina .rotina-title {
   color: #060606;
-  font-size: calc(45px * var(--dash-scale));
-  line-height: 1;
+  font-size: calc(38px * var(--dash-scale));
+  line-height: 1.02;
   font-weight: 400;
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
   white-space: nowrap;
-  transform: translateX(calc(6px * var(--dash-sx))) translateY(calc(14px * var(--dash-sy)));
+}
+
+.section--rotina .rotina-subtitle {
+  margin-top: calc(11px * var(--dash-sy));
+  color: #3a3a3a;
+  font-size: calc(16px * var(--dash-scale));
+  line-height: 1.15;
+  font-weight: 400;
+  letter-spacing: 0;
 }
 
 .section--rotina .rotina-summary {
   display: inline-flex;
-  align-items: center;
-  justify-content: flex-end;
+  align-items: flex-end;
+  justify-content: flex-start;
   gap: calc(12px * var(--dash-sx));
-  margin-top: calc(43px * var(--dash-sy));
+  margin-top: calc(26px * var(--dash-sy));
+  margin-left: calc(37px * var(--dash-sx));
   white-space: nowrap;
-  transform: translateX(calc(-191px * var(--dash-sx))) translateY(calc(60px * var(--dash-sy)));
 }
 
 .section--rotina .rotina-summary .rotina-summary-value {
   color: #000000;
-  font-size: calc(49px * var(--dash-scale));
+  font-size: calc(48px * var(--dash-scale));
   font-weight: 700;
-  letter-spacing: -0.03em;
-  line-height: 1;
+  letter-spacing: 0;
+  line-height: 0.92;
 }
 
 .section--rotina .rotina-summary .rotina-summary-label {
   color: #999999;
-  font-size: calc(17px * var(--dash-scale));
+  font-size: calc(16px * var(--dash-scale));
   font-weight: 400;
-  line-height: 1.12;
+  line-height: 1.1;
   white-space: nowrap;
+  transform: translateY(calc(-3px * var(--dash-sy)));
+}
+
+.section--rotina .rotina-progress {
+  width: calc(420px * var(--dash-sx));
+  height: calc(10px * var(--dash-sy));
+  margin-top: calc(8px * var(--dash-sy));
+  margin-left: calc(37px * var(--dash-sx));
+  border-radius: 999px;
+  background: #dfdfdf;
+  overflow: hidden;
+}
+
+.section--rotina .rotina-progress span {
+  display: block;
+  width: 64%;
+  height: 100%;
+  border-radius: inherit;
+  background: #194234;
 }
 
 .section--rotina .rotina-blocks-row {
   display: flex;
   flex-direction: row;
   align-items: stretch;
-  gap: calc(14px * var(--dash-sx));
-  width: 65%;
+  gap: calc(22px * var(--dash-sx));
+  width: calc(420px * var(--dash-sx));
+  height: calc(156px * var(--dash-sy));
+  margin-top: calc(16px * var(--dash-sy));
+  margin-left: calc(37px * var(--dash-sx));
 }
 
 .section--rotina .rotina-inativos-card,
 .section--rotina .rotina-reuniao-card {
   flex: 1 1 0;
   min-width: 0;
-  border-radius: calc(25px * var(--dash-scale));
-  padding: calc(65px * var(--dash-sy)) calc(1px * var(--dash-sx));
+  border-radius: calc(20px * var(--dash-scale));
+  padding: calc(20px * var(--dash-sy)) calc(8px * var(--dash-sx));
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: calc(9px * var(--dash-sy));
+  gap: calc(12px * var(--dash-sy));
 }
 
 .section--rotina .rotina-inativos-card {
@@ -96,18 +128,21 @@
 
 .section--rotina .rotina-inativos-card .rotina-metric-value,
 .section--rotina .rotina-reuniao-card .rotina-metric-value {
-  font-size: calc(40px * var(--dash-scale));
-  font-weight: 600;
-  letter-spacing: -0.05em;
+  font-size: calc(38px * var(--dash-scale));
+  font-weight: 700;
+  letter-spacing: 0;
   line-height: 1;
 }
 
 .section--rotina .rotina-inativos-card .rotina-metric-label,
 .section--rotina .rotina-reuniao-card .rotina-metric-label {
-  font-size: calc(18px * var(--dash-scale));
+  max-width: calc(150px * var(--dash-sx));
+  font-size: calc(15px * var(--dash-scale));
   font-weight: 400;
-  letter-spacing: -0.01em;
+  letter-spacing: 0;
   line-height: 1.05;
+  text-align: center;
+  text-transform: uppercase;
 }
 
 .section--rotina .rotina-section-footer {

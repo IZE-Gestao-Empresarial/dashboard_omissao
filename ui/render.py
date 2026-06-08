@@ -31,10 +31,9 @@ def render_dashboard(slots: dict[str, str], meta: dict[str, str | None] | None =
     card_base_css = load_asset_text("assets/card_base.css")
     card_rotina_css = load_asset_text("assets/card_rotina.css")
     card_atualizacao_css = load_asset_text("assets/card_atualizacao.css")
-    card_avancado_css = load_asset_text("assets/card_avancado.css")
-    card_entregas_finais_css = load_asset_text("assets/card_entregas_finais.css")
+    card_produto_css = load_asset_text("assets/card_produto.css")
 
-    composed_css = f"{dashboard_css}\n\n{card_base_css}\n\n{card_atualizacao_css}\n\n{card_rotina_css}\n\n{card_avancado_css}\n\n{card_entregas_finais_css}"
+    composed_css = f"{dashboard_css}\n\n{card_base_css}\n\n{card_atualizacao_css}\n\n{card_rotina_css}\n\n{card_produto_css}"
     html_out = template.replace("__DASHBOARD_CSS__", composed_css)
 
     meta = meta or {}
