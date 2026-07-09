@@ -147,3 +147,46 @@
   font-weight: 400;
   letter-spacing: -0.02em;
 }
+
+@media (max-width: 720px) {
+  .section--atualizacao {
+    --atualizacao-scale-all: 1;
+    --atualizacao-gauge-svg-scale: 1.2;
+  }
+
+  .section--atualizacao .section-header {
+    justify-content: flex-start;
+    margin-bottom: 12px;
+  }
+
+  .section--atualizacao .atualizacao-section-content {
+    padding: 18px;
+  }
+
+  .section--atualizacao .atualizacao-gauges {
+    justify-content: center;
+    gap: 40px;
+  }
+
+  .section--atualizacao .atualizacao-gauge-shell {
+    width: 172px;
+    height: 172px;
+  }
+
+  .section--atualizacao .atualizacao-gauge-fill {
+    stroke-width: 12px;
+  }
+
+  .section--atualizacao .atualizacao-gauge-value {
+    font-size: 40px;
+  }
+
+  .section--atualizacao .atualizacao-gauge-value-suffix {
+    padding-top: 7px;
+    font-size: 18px;
+  }
+
+  .section--atualizacao .atualizacao-gauge-label {
+    font-size: 16px;
+  }
+}

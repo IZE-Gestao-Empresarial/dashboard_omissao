@@ -218,6 +218,7 @@ def inject_download_overlay_css() -> None:
             justify-content: center !important;
             gap: 0 !important;
             overflow: hidden !important;
+            position: relative !important;
           }
 
           .st-key-dl_base [data-testid="stDownloadButton"] button > div,
@@ -285,7 +286,10 @@ def inject_download_overlay_css() -> None:
             stroke-width: 1.8 !important;
             margin: 0 !important;
             padding: 0 !important;
-            transform: none !important;
+            position: absolute !important;
+            left: 50% !important;
+            top: 50% !important;
+            transform: translate(-50%, -50%) !important;
             flex: 0 0 var(--overlay-dl-icon-size) !important;
           }
 
@@ -301,7 +305,10 @@ def inject_download_overlay_css() -> None:
             min-height: var(--overlay-dl-icon-size) !important;
             max-height: var(--overlay-dl-icon-size) !important;
             line-height: 1 !important;
-            transform: none !important;
+            position: absolute !important;
+            left: 50% !important;
+            top: 50% !important;
+            transform: translate(-50%, -50%) !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
@@ -316,6 +323,42 @@ def inject_download_overlay_css() -> None:
               display: none !important;
               visibility: hidden !important;
               pointer-events: none !important;
+            }
+
+            .st-key-dl_base,
+            .st-key-dl_atualizacao,
+            .st-key-dl_rotina,
+            .st-key-dl_produto {
+              display: none !important;
+              visibility: hidden !important;
+              pointer-events: none !important;
+            }
+          }
+
+          @media (max-width: 720px) {
+            .st-key-area_filter {
+              left: auto !important;
+              right: 14px !important;
+              top: 14px !important;
+              z-index: 2147483001 !important;
+            }
+
+            .st-key-area_filter [data-baseweb="select"] > div:first-child {
+              height: 44px !important;
+              padding: 0 !important;
+              justify-content: flex-end !important;
+            }
+
+            .st-key-area_filter [data-baseweb="select"] span,
+            .st-key-area_filter [data-baseweb="select"] [data-testid="stSelectbox"],
+            .st-key-area_filter [data-baseweb="select"] > div:first-child > div:first-child,
+            .st-key-area_filter [data-baseweb="select"] > div:first-child > div:first-child * {
+              font-size: 24px !important;
+              text-align: right !important;
+            }
+
+            .st-key-area_filter [data-baseweb="select"] > div:first-child > div:first-child {
+              justify-content: flex-end !important;
             }
 
             .st-key-dl_base,

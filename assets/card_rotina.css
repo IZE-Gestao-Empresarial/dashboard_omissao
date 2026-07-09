@@ -148,3 +148,64 @@
 .section--rotina .rotina-section-footer {
   display: none;
 }
+
+@media (max-width: 720px) {
+  .section--rotina .rotina-section-content {
+    padding: 22px 18px;
+    justify-content: center;
+  }
+
+  .section--rotina .rotina-title {
+    font-size: 28px;
+    white-space: normal;
+  }
+
+  .section--rotina .rotina-subtitle {
+    font-size: 14px;
+  }
+
+  .section--rotina .rotina-summary {
+    margin-top: 34px;
+    margin-left: 0;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .section--rotina .rotina-summary .rotina-summary-value {
+    font-size: 52px;
+  }
+
+  .section--rotina .rotina-summary .rotina-summary-label {
+    font-size: 14px;
+  }
+
+  .section--rotina .rotina-progress {
+    width: 100%;
+    height: 8px;
+    margin: 14px 0 0;
+  }
+
+  .section--rotina .rotina-blocks-row {
+    width: 100%;
+    height: auto;
+    margin: 26px 0 0;
+    gap: 12px;
+  }
+
+  .section--rotina .rotina-inativos-card,
+  .section--rotina .rotina-reuniao-card {
+    min-height: 132px;
+    border-radius: 16px;
+  }
+
+  .section--rotina .rotina-inativos-card .rotina-metric-value,
+  .section--rotina .rotina-reuniao-card .rotina-metric-value {
+    font-size: 36px;
+  }
+
+  .section--rotina .rotina-inativos-card .rotina-metric-label,
+  .section--rotina .rotina-reuniao-card .rotina-metric-label {
+    max-width: 130px;
+    font-size: 12px;
+  }
+}

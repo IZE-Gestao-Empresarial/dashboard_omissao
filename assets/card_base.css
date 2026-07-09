@@ -200,3 +200,55 @@
 .section--base .base-section-footer {
   display: none;
 }
+
+@media (max-width: 720px) {
+  .section--base {
+    --base-title-size: 28px;
+    --base-title-offset-x: 0px;
+    --base-title-offset-y: 0px;
+    --base-subtitle-size: 14px;
+    --base-subtitle-offset-x: 0px;
+    --base-subtitle-offset-y: 0px;
+    --base-topline-offset-y: 0px;
+    --base-topline-offset-x: 0px;
+    --base-top-text-offset-y: 0px;
+    --base-top-stat-gap: 10px;
+    --base-top-stat-offset-x: 0px;
+    --base-top-value-size: 34px;
+    --base-top-label-size: 12px;
+    --base-top-to-metrics-gap-y: 18px;
+    --base-metric-card-height: auto;
+    --base-metric-card-gap: 10px;
+    --base-metric-visual-gap-x: 0px;
+    --base-metric-card-pad-x: 8px;
+    --base-metric-value-size: 30px;
+    --base-metric-label-size: 13px;
+    --base-metric-label-offset-y: 0px;
+  }
+
+  .section--base .base-section-content {
+    padding: 22px 18px;
+    justify-content: center;
+  }
+
+  .section--base .base-prototype-title {
+    letter-spacing: -0.02em;
+  }
+
+  .section--base .base-prototype-topline {
+    margin-top: 30px;
+    padding: 0;
+  }
+
+  .section--base .base-prototype-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    padding: 0;
+  }
+
+  .section--base .base-metric-card {
+    min-height: 120px;
+    border-radius: 16px;
+    transform: none !important;
+  }
+}

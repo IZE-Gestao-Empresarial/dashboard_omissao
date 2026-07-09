@@ -255,3 +255,83 @@ body {
     gap: 0 !important;
   }
 }
+
+@media (max-width: 720px) {
+  html,
+  body {
+    overflow: hidden;
+  }
+
+  .dashboard-viewport {
+    height: 100dvh;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scroll-snap-type: y mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .omission-layout {
+    width: 100%;
+    height: auto;
+    min-height: 100dvh;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .layout-cell {
+    width: 100%;
+    min-height: 100dvh;
+    padding: 10px 0 18px;
+    display: flex;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+
+  .omission-section {
+    min-height: calc(100dvh - 28px);
+  }
+
+  .section-header {
+    height: 44px;
+    margin-bottom: 12px;
+    gap: 10px;
+    flex: 0 0 auto;
+  }
+
+  .section-pill {
+    height: 44px;
+    padding: 0 22px;
+    font-size: 24px;
+  }
+
+  .section-card {
+    border-radius: 22px;
+    min-height: 0;
+  }
+
+  .section-card-content {
+    padding: 18px;
+    gap: 12px;
+  }
+
+  .metric-label {
+    font-size: 16px;
+  }
+
+  .metric-meta {
+    font-size: 12px;
+  }
+
+  .metric-badge {
+    min-width: 86px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    font-size: 22px;
+  }
+
+  .layout-produto .section-header {
+    margin-bottom: 12px;
+  }
+}
