@@ -703,7 +703,7 @@ def _render_produto_section(section: dict[str, Any], updated_at: str | None = No
     qualidade_html = "\n".join([
         _render_produto_metric(clientes_integrados, label="Clientes Integrados"),
         _render_produto_metric(de_para_incorretos, label="De-Para incorretos", risk=True),
-        _render_produto_metric(erro_atualizacao_dash_hoje, label="Erros att. (Hoje)", risk=True, force_suffix="%"),
+        _render_produto_metric(erro_atualizacao_dash_hoje, label="Erros att. (Hoje)", risk=True),
     ])
 
     footer = f'<div class="section-footer produto-section-footer">Ultima atualizacao geral: {escape(updated_at)}</div>' if updated_at else ""
